@@ -38,6 +38,32 @@ const { data: post } = await loadQuery<{
   }`,
   params,
 });
+
+// Get all posts to determine prev/next
+const { data: allPosts } = await loadQuery<Array<{
+  _id: string;
+  title: string;
+  slug: { current: string };
+  publishedAt?: string;
+  mainImage?: { asset: { url: string } };
+}>>({
+  query: `*[_type == "post"] | order(publishedAt desc) {
+    _id,
+    title,
+    slug,
+    publishedAt,
+    mainImage {
+      asset-> {
+        url
+      }
+    }
+  }`,
+});
+
+// Find current post index and get prev/next
+const currentIndex = allPosts.findIndex(p => p.slug.current === params.slug);
+const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 ---
 
 <Layout title={post.title}>
@@ -78,6 +104,40 @@ const { data: post } = await loadQuery<{
       </AnimatedSection>
 
       <AnimatedSection animation="fade-up" delay={0.5}>
+        <nav class="post-navigation">
+          {prevPost && (
+            <a href={`/posts/${prevPost.slug.current}`} class="nav-link prev-post">
+              <div class="nav-content">
+                {prevPost.mainImage?.asset?.url && (
+                  <div class="nav-image">
+                    <img src={prevPost.mainImage.asset.url} alt={prevPost.title} />
+                  </div>
+                )}
+                <div class="nav-text">
+                  <span class="nav-label">Bài viết trước</span>
+                  <span class="nav-title">{prevPost.title}</span>
+                </div>
+              </div>
+            </a>
+          )}
+          
+          {nextPost && (
+            <a href={`/posts/${nextPost.slug.current}`} class="nav-link next-post">
+              <div class="nav-content">
+                <div class="nav-text">
+                  <span class="nav-label">Bài viết sau</span>
+                  <span class="nav-title">{nextPost.title}</span>
+                </div>
+                {nextPost.mainImage?.asset?.url && (
+                  <div class="nav-image">
+                    <img src={nextPost.mainImage.asset.url} alt={nextPost.title} />
+                  </div>
+                )}
+              </div>
+            </a>
+          )}
+        </nav>
+
         <div class="post-footer">
           <a href="/" class="back-link">← Back to Home</a>
         </div>
@@ -184,6 +244,103 @@ const { data: post } = await loadQuery<{
     opacity: 0.7;
   }
 
+  .post-navigation {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .nav-link {
+    display: block;
+    text-decoration: none;
+    background: var(--color-wrap);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+  }
+
+  .nav-link:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .nav-link:only-child {
+    grid-column: span 2;
+    max-width: 50%;
+  }
+
+  .prev-post:only-child {
+    justify-self: start;
+  }
+
+  .next-post:only-child {
+    justify-self: end;
+  }
+
+  .nav-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-height: 120px;
+  }
+
+  .prev-post .nav-content {
+    flex-direction: row;
+  }
+
+  .next-post .nav-content {
+    flex-direction: row-reverse;
+  }
+
+  .nav-image {
+    width: 160px;
+    height: 120px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: var(--color-background);
+  }
+
+  .nav-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .nav-link:hover .nav-image img {
+    transform: scale(1.1);
+  }
+
+  .nav-text {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-label {
+    font-size: 0.875rem;
+    color: var(--grey-9);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-default);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+
   .post-content :global(blockquote) {
     border-left: 4px solid var(--red-1);
     padding-left: 1.5rem;
@@ -262,6 +419,37 @@ const { data: post } = await loadQuery<{
 
     .meta-separator {
       display: none;
+    }
+
+    .post-navigation {
+      grid-template-columns: 1fr;
+    }
+
+    .nav-link:only-child {
+      grid-column: span 1;
+      max-width: 100%;
+    }
+
+    .prev-post:only-child,
+    .next-post:only-child {
+      justify-self: stretch;
+    }
+
+    .nav-content {
+      min-height: 100px;
+    }
+
+    .nav-image {
+      width: 100px;
+      height: 100px;
+    }
+
+    .nav-text {
+      padding: 1rem;
+    }
+
+    .nav-title {
+      font-size: 1rem;
     }
   }
 
