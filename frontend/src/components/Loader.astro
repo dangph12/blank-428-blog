@@ -1,0 +1,162 @@
+---
+// Full-page loader component similar to Hugo theme
+---
+
+<div id="loader">
+  <div class="loading-left-bg loading-bg"></div>
+  <div class="loading-right-bg loading-bg"></div>
+  <div class="spinner-box">
+    <div class="loading-taichi rotate">
+      <img src="/images/taichi.svg" alt="loading" width="150" height="150" />
+    </div>
+    <div class="loading-word">Loading...</div>
+  </div>
+</div>
+
+<script>
+  let time: number | null = null;
+  const loaderEl = document.getElementById('loader');
+
+  const startLoading = () => {
+    time = Date.now();
+    loaderEl?.classList.remove('loading');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const hideLoader = () => {
+    document.body.style.overflow = 'auto';
+    loaderEl?.classList.add('loading');
+  };
+
+  const endLoading = () => {
+    if (!time) {
+      hideLoader();
+    } else {
+      const elapsed = Date.now() - time;
+      if (elapsed > 500) {
+        time = null;
+        hideLoader();
+      } else {
+        setTimeout(() => {
+          time = null;
+          hideLoader();
+        }, 500 - elapsed);
+      }
+    }
+  };
+
+  // Start with hidden overflow
+  document.body.style.overflow = 'hidden';
+
+  // Hide loader on initial page load
+  if (document.readyState === 'complete') {
+    endLoading();
+  } else {
+    window.addEventListener('load', endLoading);
+  }
+
+  // For Astro page transitions (if using view transitions)
+  document.addEventListener('astro:page-load', endLoading);
+  document.addEventListener('astro:before-preparation', startLoading);
+</script>
+
+<style>
+  #loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: all;
+  }
+
+  .loading-bg {
+    position: fixed;
+    z-index: 1000;
+    width: 50%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    transition: transform 0.8s ease;
+  }
+
+  [data-theme="dark"] .loading-bg {
+    background-color: rgba(37, 37, 37, 0.95);
+  }
+
+  .loading-left-bg {
+    left: 0;
+  }
+
+  .loading-right-bg {
+    right: 0;
+  }
+
+  .spinner-box {
+    position: fixed;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    opacity: 1;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  .loading-taichi {
+    opacity: 0.8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .loading-taichi img {
+    filter: drop-shadow(0 0 20px var(--red-1));
+  }
+
+  .rotate {
+    animation: rotate-all 2s linear infinite;
+  }
+
+  .loading-word {
+    position: absolute;
+    color: var(--red-1);
+    top: calc(50% + 110px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--red-1);
+  }
+
+  [data-theme="dark"] .loading-word {
+    text-shadow: 0 0 20px var(--red-1);
+  }
+
+  /* Loading complete state */
+  #loader.loading {
+    pointer-events: none;
+  }
+
+  #loader.loading .loading-left-bg {
+    transform: translateX(-100%);
+  }
+
+  #loader.loading .loading-right-bg {
+    transform: translateX(100%);
+  }
+
+  #loader.loading .spinner-box {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  @keyframes rotate-all {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

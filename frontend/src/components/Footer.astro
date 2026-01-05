@@ -1,0 +1,73 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-content">
+      <p class="footer-text">
+        © {currentYear} Blank.428 - Con dốc nhạt nhoà
+      </p>
+      <p class="footer-powered">
+        Powered by <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> + 
+        <a href="https://www.sanity.io" target="_blank" rel="noopener">Sanity</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-footer-background);
+    border-top: 1px solid var(--color-border);
+    margin-top: 4rem;
+    padding: 2rem 0;
+    transition: background 0.3s ease;
+  }
+
+  .footer-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .footer-content {
+    text-align: center;
+  }
+
+  .footer-text {
+    color: var(--color-default);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .footer-powered {
+    color: var(--grey-9);
+    font-size: 0.85rem;
+  }
+
+  .footer-powered a {
+    color: var(--red-1);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .footer-powered a:hover {
+    opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    .site-footer {
+      padding: 1.5rem 0;
+      margin-top: 3rem;
+    }
+
+    .footer-text {
+      font-size: 0.9rem;
+    }
+
+    .footer-powered {
+      font-size: 0.8rem;
+    }
+  }
+</style>

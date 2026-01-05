@@ -1,0 +1,41 @@
+---
+// Lazysizes initialization component
+---
+
+<script>
+  import 'lazysizes';
+  
+  // Configure lazysizes
+  if (typeof window !== 'undefined') {
+    const win = window as any;
+    if (win.lazySizes) {
+      win.lazySizes.cfg = win.lazySizes.cfg || {};
+      win.lazySizes.cfg.lazyClass = 'lazyload';
+      win.lazySizes.cfg.loadingClass = 'lazyloading';
+      win.lazySizes.cfg.loadedClass = 'lazyloaded';
+    }
+  }
+</script>
+
+<style is:global>
+  /* Lazy loading states */
+  .lazyload,
+  .lazyloading {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .lazyloaded {
+    opacity: 1;
+  }
+
+  /* Blur up effect while loading */
+  .blur-up {
+    filter: blur(5px);
+    transition: filter 0.4s;
+  }
+
+  .blur-up.lazyloaded {
+    filter: blur(0);
+  }
+</style>

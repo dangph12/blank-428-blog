@@ -1,9 +1,169 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Card from "../components/Card.astro";
+import AnimatedSection from "../components/AnimatedSection.astro";
+import HeroBanner from "../components/HeroBanner.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { loadQuery } from "../lib/load-query";
+import type { SanityDocument } from "@sanity/client";
+
+// Fetch all posts
+const { data: posts } = await loadQuery<SanityDocument[]>({
+  query: `*[_type == "post"] | order(publishedAt desc) {
+    _id,
+    title,
+    slug,
+    excerpt,
+    publishedAt,
+    "imageUrl": mainImage.asset->url
+  }`,
+});
 ---
 
 <Layout title="Blank.428 - Con dốc nhạt nhoà">
-<main class="container mx-auto min-h-screen max-w-3xl p-8">
-  <h1 class="text-4xl font-bold mb-8">Blank.428 - Con dốc nhạt nhoà</h1>
-</main>
+  <div class="home-container">
+    <!-- Hero Banner -->
+    <AnimatedSection animation="fade-in" duration={0.8}>
+      <HeroBanner 
+        title="Blank.428"
+        subtitle="Con dốc nhạt nhoà"
+      />
+    </AnimatedSection>
+
+    <!-- Two Column Layout -->
+    <div class="content-layout">
+      <!-- Main Content -->
+      <div class="main-content">
+        <section class="posts-section">
+          <AnimatedSection animation="fade-in" delay={0.2}>
+            <h2 class="section-title">Recent Posts</h2>
+          </AnimatedSection>
+
+          {posts && posts.length > 0 ? (
+            <div class="posts-list">
+              {posts.map((post, index) => (
+                <AnimatedSection 
+                  animation="fade-up" 
+                  delay={0.1 * (index + 1)}
+                >
+                  <Card
+                    title={post.title}
+                    excerpt={post.excerpt}
+                    date={post.publishedAt}
+                    href={`/posts/${post.slug.current}`}
+                    image={post.imageUrl}
+                    index={index}
+                  />
+                </AnimatedSection>
+              ))}
+            </div>
+          ) : (
+            <AnimatedSection animation="fade-in" delay={0.3}>
+              <div class="no-posts">
+                <p>No posts yet. Check back soon!</p>
+              </div>
+            </AnimatedSection>
+          )}
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <AnimatedSection animation="fade-in" delay={0.3}>
+        <Sidebar />
+      </AnimatedSection>
+    </div>
+  </div>
 </Layout>
+
+<style>
+  .home-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .content-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 1200px) {
+    .content-layout {
+      flex-direction: column;
+    }
+  }
+
+  .main-content {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+  }
+
+  .posts-section {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red-1), var(--red-2));
+    border-radius: 2px;
+    box-shadow: var(--shadow-red-6-shadow);
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .no-posts {
+    text-align: center;
+    padding: 3rem;
+    background: var(--color-wrap);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .no-posts p {
+    color: var(--grey-9);
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .home-container {
+      padding: 0 0.75rem;
+    }
+
+    .content-layout {
+      gap: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+    }
+
+    .posts-list {
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .section-title {
+      font-size: 1.5rem;
+    }
+  }
+</style>

@@ -1,30 +1,78 @@
 ---
 // ./src/layouts/Layout.astro
 import { VisualEditing } from "@sanity/astro/visual-editing";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Loader from "../components/Loader.astro";
+import PaceLoader from "../components/PaceLoader.astro";
+import LazyLoad from "../components/LazyLoad.astro";
+import BackToTop from "../components/BackToTop.astro";
+import ClickEffect from "../components/ClickEffect.astro";
+
+// Import global styles
+import "../styles/variables.css";
+import "../styles/animations.css";
+import "../styles/global.css";
 
 const visualEditingEnabled =
   import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED == "true";
+
+const { title = "Blank.428 - Con dốc nhạt nhoà" } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{Astro.props.title}</title>
+		<title>{title}</title>
+		<meta name="description" content="Con dốc nhạt nhoà - A personal blog" />
   </head>
   <body>
-    <slot />
-    <VisualEditing enabled={visualEditingEnabled} />
+    <Loader />
+    <PaceLoader />
+    <LazyLoad />
+    <BackToTop />
+    <ClickEffect />
+    
+    <div id="container">
+      <Header title="Blank.428" />
+      
+      <main id="main">
+        <slot />
+      </main>
+      
+      <Footer />
+    </div>
+    
+    {visualEditingEnabled && <VisualEditing enabled={true} />}
   </body>
 </html>
 
-<style>
+<style is:global>
 	html,
 	body {
 		margin: 0;
 		width: 100%;
-		height: 100%;
+		min-height: 100%;
 	}
+
+  #container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  #main {
+    flex: 1;
+    padding-top: calc(var(--header-height) + 2rem);
+    padding-bottom: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    #main {
+      padding-top: calc(50px + 1.5rem);
+    }
+  }
 </style>

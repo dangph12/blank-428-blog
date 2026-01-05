@@ -1,0 +1,77 @@
+/* Color System & Theme Variables */
+:root {
+  /* Red color palette */
+  --red-0: #ff0000;
+  --red-1: #ff5252;
+  --red-2: #ff7c7c;
+  --red-3: #ffafaf;
+  --red-4: #ffd0d0;
+  --red-5: #ffecec;
+  --red-5-5: #fff3f3;
+  --red-6: #fff7f7;
+
+  /* Grey shades */
+  --grey-9: #888;
+  --grey-7: #444;
+
+  /* Semantic colors */
+  --color-archive-year: black;
+  --color-default: #444;
+  --color-border: var(--red-3);
+  --color-link: var(--red-1);
+  --color-background: #eee;
+  --color-code-background: #f8f8f8;
+  --color-header-background: rgba(255, 255, 255, 0.9);
+  --color-footer-background: #fff;
+  --color-mobile-nav-background: #fff;
+  --color-wrap: #fff;
+  --color-sticky: #fff;
+
+  /* Special effects */
+  --color-h2-border: #eee;
+  --color-meta-shadow: var(--red-6);
+  --color-hover-shadow: rgba(120, 120, 120, 0.15);
+  --color-h2-after: var(--red-1);
+  --color-red-6-shadow: rgba(255, 78, 78, 0.6);
+  --color-red-3-shadow: rgba(255, 78, 78, 0.3);
+
+  /* Shadows */
+  --shadow-meta: 0 0 5px 2px var(--color-meta-shadow);
+  --shadow-meta-hover: 0 0 6px 4px var(--color-meta-shadow);
+  --shadow-card: 0 0 10px 2px var(--color-hover-shadow);
+  --shadow-card-hover: 0 0 10px 4px var(--color-hover-shadow);
+  --shadow-red-6-shadow: 0 0 8px var(--color-red-6-shadow);
+
+  /* Cursor settings - Reimu cursors enabled */
+  --cursor-default: url(/images/cursor/reimu-cursor-default.png), auto;
+  --cursor-pointer: url(/images/cursor/reimu-cursor-pointer.png), pointer;
+  --cursor-text: url(/images/cursor/reimu-cursor-text.png), text;
+
+  /* Layout */
+  --content-max-width: 1350px;
+  --header-height: 60px;
+  --tag-radius: 4px;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --red-0: var(--red-1);
+  --red-4: rgba(255, 208, 208, 0.5);
+  --red-5: rgba(255, 228, 228, 0.15);
+  --red-5-5: rgba(255, 236, 236, 0.05);
+  --red-6: rgba(255, 243, 243, 0.2);
+
+  --color-archive-year: #999;
+  --color-default: #999;
+  --color-border: var(--red-5);
+  --color-background: #21252b;
+  --color-code-background: rgba(232, 232, 232, 0.1);
+  --color-header-background: #222222;
+  --color-footer-background: #21252b;
+  --color-mobile-nav-background: #21252b;
+  --color-wrap: #272b30;
+
+  --color-h2-border: #47474a;
+  --color-meta-shadow: rgba(0, 0, 0, 0.2);
+  --color-hover-shadow: rgba(0, 0, 0, 0.2);
+}

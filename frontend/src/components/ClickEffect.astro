@@ -1,0 +1,43 @@
+---
+// ClickEffect.astro - Mouse firework effect on clicks
+---
+
+<script>
+  import firework from 'mouse-firework';
+
+  // Initialize mouse-firework with Reimu theme colors
+  firework({
+    excludeElements: ['a', 'button', 'input', 'textarea'],
+    particles: [
+      {
+        shape: 'circle',
+        move: ['emit'],
+        easing: 'easeOutExpo',
+        colors: [
+          'rgba(255,82,82,.9)',   // --red-1
+          'rgba(255,124,124,.9)', // --red-2
+          'rgba(255,175,175,.9)', // --red-3
+          'rgba(255,208,208,.9)', // --red-4
+        ],
+        number: 20,
+        duration: [800, 1200],
+        shapeOptions: {
+          radius: [8, 16],
+        },
+      },
+      {
+        shape: 'circle',
+        move: ['diffuse'],
+        easing: 'easeOutExpo',
+        colors: ['#FFF'],
+        number: 1,
+        duration: [800, 1200],
+        shapeOptions: {
+          radius: 12,
+          alpha: 0.4,
+          lineWidth: 4,
+        },
+      },
+    ],
+  });
+</script>

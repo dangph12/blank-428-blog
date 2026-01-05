@@ -4,6 +4,7 @@ import type { SanityDocument } from "@sanity/client";
 import { loadQuery } from "../../lib/load-query";
 import Layout from "../../layouts/Layout.astro";
 import PortableText from "../../components/PortableText.astro";
+import AnimatedSection from "../../components/AnimatedSection.astro";
 
 export async function getStaticPaths() {
   const { data: posts } = await loadQuery<SanityDocument[]>({
@@ -21,13 +22,256 @@ export async function getStaticPaths() {
 
 const { params } = Astro;
 
-const { data: post } = await loadQuery<{ title: string; body: any[] }>({
-  query: `*[_type == "post" && slug.current == $slug][0]`,
+const { data: post } = await loadQuery<{ 
+  title: string; 
+  body: any[];
+  publishedAt?: string;
+  author?: { name: string };
+  excerpt?: string;
+}>({
+  query: `*[_type == "post" && slug.current == $slug][0]{
+    title,
+    body,
+    publishedAt,
+    excerpt,
+    "author": author->name
+  }`,
   params,
 });
 ---
 
 <Layout title={post.title}>
-  <h1>A post about {post.title}</h1>
-  <PortableText portableText={post.body} />
+  <article class="post-article">
+    <div class="container">
+      <AnimatedSection animation="fade-up" duration={0.8}>
+        <header class="post-header">
+          <h1 class="post-title">{post.title}</h1>
+          
+          {post.excerpt && (
+            <p class="post-excerpt">{post.excerpt}</p>
+          )}
+          
+          <div class="post-meta">
+            {post.publishedAt && (
+              <time class="post-date" datetime={post.publishedAt}>
+                {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </time>
+            )}
+            {post.author && (
+              <>
+                <span class="meta-separator">•</span>
+                <span class="post-author">{post.author}</span>
+              </>
+            )}
+          </div>
+        </header>
+      </AnimatedSection>
+
+      <AnimatedSection animation="fade-in" delay={0.3}>
+        <div class="post-content">
+          <PortableText portableText={post.body} />
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection animation="fade-up" delay={0.5}>
+        <div class="post-footer">
+          <a href="/" class="back-link">← Back to Home</a>
+        </div>
+      </AnimatedSection>
+    </div>
+  </article>
 </Layout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .post-article {
+    padding: 2rem 0;
+  }
+
+  .post-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .post-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    color: var(--color-default);
+  }
+
+  .post-excerpt {
+    font-size: 1.25rem;
+    color: var(--grey-9);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--grey-9);
+  }
+
+  .meta-separator {
+    color: var(--color-border);
+  }
+
+  .post-date,
+  .post-author {
+    font-weight: 500;
+  }
+
+  .post-content {
+    background: var(--color-wrap);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 3rem;
+    line-height: 1.8;
+  }
+
+  .post-content :global(p) {
+    margin-bottom: 1.25rem;
+    color: var(--color-default);
+  }
+
+  .post-content :global(h2) {
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .post-content :global(h3) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-content :global(ul),
+  .post-content :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+  }
+
+  .post-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .post-content :global(a) {
+    color: var(--red-1);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+    transition: opacity 0.2s ease;
+  }
+
+  .post-content :global(a:hover) {
+    opacity: 0.7;
+  }
+
+  .post-content :global(blockquote) {
+    border-left: 4px solid var(--red-1);
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--grey-9);
+  }
+
+  .post-content :global(code) {
+    background: var(--color-code-background);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .post-content :global(pre) {
+    background: var(--color-code-background);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .post-content :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+
+  .post-content :global(img) {
+    border-radius: 8px;
+    margin: 2rem auto;
+    box-shadow: var(--shadow-card);
+  }
+
+  .post-footer {
+    text-align: center;
+    padding-top: 2rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--red-1);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-wrap);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .back-link:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  @media (max-width: 768px) {
+    .post-title {
+      font-size: 2rem;
+    }
+
+    .post-excerpt {
+      font-size: 1.1rem;
+    }
+
+    .post-content {
+      padding: 1.5rem;
+    }
+
+    .post-meta {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .meta-separator {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .post-title {
+      font-size: 1.75rem;
+    }
+
+    .post-content {
+      padding: 1.25rem;
+    }
+  }
+</style>

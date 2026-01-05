@@ -1,0 +1,79 @@
+---
+// Pace.js loading bar component
+---
+
+<div id="pace-loader"></div>
+
+<style is:global>
+  /* Pace.js loading bar styles */
+  .pace {
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .pace-inactive {
+    display: none;
+  }
+
+  .pace .pace-progress {
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    right: 100%;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red-1), var(--red-2));
+    box-shadow: 0 0 10px var(--red-1), 0 0 5px var(--red-1);
+  }
+
+  .pace .pace-progress-inner {
+    display: block;
+    position: absolute;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    box-shadow: 0 0 10px var(--red-1), 0 0 5px var(--red-1);
+    opacity: 1;
+    transform: rotate(3deg) translate(0, -4px);
+  }
+
+  .pace .pace-activity {
+    display: block;
+    position: fixed;
+    z-index: 2000;
+    top: 10px;
+    right: 10px;
+    width: 14px;
+    height: 14px;
+    border: solid 2px transparent;
+    border-top-color: var(--red-1);
+    border-left-color: var(--red-1);
+    border-radius: 10px;
+    animation: pace-spinner 400ms linear infinite;
+  }
+
+  @keyframes pace-spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+  import 'pace-js';
+  
+  // Initialize Pace.js
+  const Pace = (window as any).Pace;
+  if (Pace) {
+    Pace.start({
+      restartOnPushState: false,
+      restartOnRequestAfter: false,
+    });
+
+    // Clear elements after done to prevent memory issues
+    Pace.on('done', () => {
+      if (Pace.sources && Pace.sources[0]) {
+        Pace.sources[0].elements = [];
+      }
+    });
+  }
+</script>

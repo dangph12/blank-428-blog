@@ -1,0 +1,86 @@
+---
+interface Props {
+  animation?: 'fade-up' | 'fade-in' | 'zoom-in' | 'slide-left' | 'slide-right';
+  delay?: number;
+  duration?: number;
+  once?: boolean;
+  className?: string;
+}
+
+const { 
+  animation = 'fade-up', 
+  delay = 0, 
+  duration = 0.6, 
+  once = true, 
+  className = '' 
+} = Astro.props;
+---
+
+<div 
+  class={`animated-section animate-${animation} ${className}`}
+  data-animation={animation}
+  data-delay={delay}
+  data-duration={duration}
+  data-once={once}
+  style={`--animation-delay: ${delay}s; --animation-duration: ${duration}s;`}
+>
+  <slot />
+</div>
+
+<style is:global>
+  .animated-section {
+    opacity: 0;
+  }
+
+  .animated-section.animate-fade-up {
+    animation: fade-up var(--animation-duration, 0.6s) ease-out var(--animation-delay, 0s) forwards;
+  }
+
+  .animated-section.animate-fade-in {
+    animation: fade-in var(--animation-duration, 0.6s) ease-out var(--animation-delay, 0s) forwards;
+  }
+
+  .animated-section.animate-zoom-in {
+    animation: zoom-in var(--animation-duration, 0.6s) ease-out var(--animation-delay, 0s) forwards;
+  }
+
+  .animated-section.animate-slide-left {
+    animation: slide-in-left var(--animation-duration, 0.6s) ease-out var(--animation-delay, 0s) forwards;
+  }
+
+  .animated-section.animate-slide-right {
+    animation: slide-in-right var(--animation-duration, 0.6s) ease-out var(--animation-delay, 0s) forwards;
+  }
+
+  /* Intersection observer for scroll animations */
+  .animated-section.in-view {
+    animation-play-state: running;
+  }
+</style>
+
+<script>
+  // Use Intersection Observer for scroll animations
+  const sections = document.querySelectorAll('.animated-section');
+  
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        // If once is true, unobserve after animation
+        const once = (entry.target as HTMLElement).dataset.once === 'true';
+        if (once) {
+          observer.unobserve(entry.target);
+        }
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(section => {
+    observer.observe(section);
+  });
+</script>

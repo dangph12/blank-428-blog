@@ -1,0 +1,107 @@
+---
+// BackToTop.astro - Scroll to top button
+---
+
+<button id="back-to-top" class="back-to-top" aria-label="Back to top">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15l-6-6-6 6"/>
+  </svg>
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 100;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--color-wrap);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 2px solid var(--red-1);
+    cursor: var(--cursor-pointer);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+  }
+
+  .back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .back-to-top:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+    background: var(--red-1);
+  }
+
+  .back-to-top:hover svg {
+    color: white;
+  }
+
+  .back-to-top svg {
+    color: var(--red-1);
+    transition: color 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    .back-to-top {
+      width: 2.5rem;
+      height: 2.5rem;
+      bottom: 1.5rem;
+      right: 1.5rem;
+    }
+    
+    .back-to-top svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+</style>
+
+<script>
+  function initBackToTop() {
+    const btn = document.getElementById('back-to-top') as HTMLButtonElement;
+    if (!btn) return;
+
+    // Show/hide button based on scroll position
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    };
+
+    // Scroll to top smoothly
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    btn.addEventListener('click', scrollToTop);
+
+    // Initial check
+    handleScroll();
+  }
+
+  // Run when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBackToTop);
+  } else {
+    initBackToTop();
+  }
+
+  // Re-initialize on page navigation (for SPA-like behavior)
+  document.addEventListener('astro:page-load', initBackToTop);
+</script>
