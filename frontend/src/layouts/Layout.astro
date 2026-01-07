@@ -64,13 +64,13 @@ const { title = "Blank.428 - Con dốc nhạt nhoà" } = Astro.props;
 
   #main {
     flex: 1;
-    padding-top: calc(var(--header-height) + 2rem);
+    padding-top: var(--header-height);
     padding-bottom: 2rem;
   }
 
   @media (max-width: 768px) {
     #main {
-      padding-top: calc(50px + 1.5rem);
+      padding-top: 50px;
     }
   }
 </style>

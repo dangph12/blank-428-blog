@@ -35,17 +35,19 @@ const {
   #hero-banner {
     position: relative;
     width: 100%;
-    height: 400px;
+    height: 100vh;
     overflow: hidden;
-    margin-bottom: 2rem;
-    border-radius: 16px;
-    box-shadow: var(--shadow-card);
+    margin-bottom: -200px;
+    margin-top: calc(var(--header-height) * -1);
+    padding-top: var(--header-height);
   }
 
   @media (max-width: 768px) {
     #hero-banner {
-      height: 300px;
-      margin-bottom: 1.5rem;
+      height: 100vh;
+      margin-bottom: -300px;
+      margin-top: -50px;
+      padding-top: 50px;
     }
   }
 
@@ -56,6 +58,16 @@ const {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    .banner-image-wrapper {
+      background: transparent;
+    }
   }
 
   .banner-image-wrapper::after {
@@ -68,8 +80,9 @@ const {
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(0, 0, 0, 0.3) 50%,
-      rgba(0, 0, 0, 0.7) 100%
+      rgba(0, 0, 0, 0.2) 30%,
+      rgba(0, 0, 0, 0.5) 70%,
+      rgba(0, 0, 0, 0.8) 100%
     );
     z-index: 1;
   }
@@ -77,9 +90,19 @@ const {
   .banner-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     transition: transform 0.5s ease;
+  }
+
+  @media (max-width: 768px) {
+    .banner-image {
+      width: 120%;
+      height: auto;
+      object-fit: cover;
+      object-position: center top;
+      margin-left: -10%;
+    }
   }
 
   #hero-banner:hover .banner-image {
@@ -88,18 +111,20 @@ const {
 
   .banner-content {
     position: absolute;
-    bottom: 0;
+    top: 25%;
     left: 0;
     right: 0;
     z-index: 2;
     padding: 2rem;
     color: white;
     text-align: center;
+    transform: translateY(-50%);
   }
 
   @media (max-width: 768px) {
     .banner-content {
       padding: 1.5rem;
+      top: 20%;
     }
   }
 

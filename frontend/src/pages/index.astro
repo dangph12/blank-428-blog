@@ -21,14 +21,15 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
 ---
 
 <Layout title="Blank.428 - Con dốc nhạt nhoà">
+  <AnimatedSection animation="fade-in" duration={0.8}>
+    <HeroBanner 
+      title="Blank.428"
+      subtitle="Con dốc nhạt nhoà"
+    />
+  </AnimatedSection>
   <div class="home-container">
     <!-- Hero Banner -->
-    <AnimatedSection animation="fade-in" duration={0.8}>
-      <HeroBanner 
-        title="Blank.428"
-        subtitle="Con dốc nhạt nhoà"
-      />
-    </AnimatedSection>
+
 
     <!-- Two Column Layout -->
     <div class="content-layout">
@@ -68,9 +69,11 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
       </div>
 
       <!-- Sidebar -->
-      <AnimatedSection animation="fade-in" delay={0.3}>
-        <Sidebar />
-      </AnimatedSection>
+      <div class="sidebar-wrapper">
+        <AnimatedSection animation="fade-in" delay={0.3}>
+          <Sidebar />
+        </AnimatedSection>
+      </div>
     </div>
   </div>
 </Layout>
@@ -80,24 +83,57 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
     max-width: var(--content-max-width);
     margin: 0 auto;
     padding: 0 1rem;
+    margin-top: -400px;
+    position: relative;
+    z-index: 10;
+  }
+
+  @media (max-width: 768px) {
+    .home-container {
+      margin-top: -450px;
+      padding: 0;
+    }
   }
 
   .content-layout {
     display: flex;
     gap: 2rem;
     align-items: flex-start;
-    margin-top: 2rem;
+    margin-top: 0;
+    position: relative;
+    z-index: 10;
   }
 
   @media (max-width: 1200px) {
     .content-layout {
       flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .sidebar-wrapper {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .content-layout {
+      gap: 1.5rem;
+      padding: 0 0.75rem;
     }
   }
 
   .main-content {
     flex: 1;
     min-width: 0; /* Prevents flex item from overflowing */
+    width: 100%;
+  }
+
+  @media (max-width: 1200px) {
+    .main-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
   }
 
   .posts-section {
@@ -145,19 +181,22 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
 
   @media (max-width: 768px) {
     .home-container {
-      padding: 0 0.75rem;
+      padding: 0;
     }
 
     .content-layout {
       gap: 1.5rem;
+      padding: 0 0.75rem;
     }
 
     .section-title {
       font-size: 1.75rem;
+      padding: 0 0.75rem;
     }
 
     .posts-list {
       gap: 1.5rem;
+      padding: 0 0.75rem;
     }
   }
 
