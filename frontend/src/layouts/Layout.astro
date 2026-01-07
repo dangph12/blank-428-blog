@@ -25,7 +25,18 @@ const { title = "Blank.428 - Con dốc nhạt nhoà" } = Astro.props;
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-		<meta name="description" content="Con dốc nhạt nhoà - A personal blog" />
+		<meta name="description" content="Blank.428 - Con dốc nhạt nhoà" />
+    <meta name="keywords" content="Blank.428, Blog, Con dốc nhạt nhoà" />
+    <!-- Open Graph / Facebook -->
+    <meta name="og:title" content={title} />
+    <meta name="og:description" content="Blank.428 - Con dốc nhạt nhoà" />
+    <meta name="og:type" content="website" />
+    <meta name="og:image" content="/og-image.png" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content="Blank.428 - Con dốc nhạt nhoà" />
+    <meta name="twitter:image" content="/og-image.png" />
   </head>
   <body>
     <Loader />
