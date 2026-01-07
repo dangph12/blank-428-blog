@@ -8,15 +8,15 @@ interface Props {
 const { 
   title = "Blank.428",
   subtitle = "Con dốc nhạt nhoà",
-  image = "/images/banner.webp"
+  image = "https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801461/banner_h5c3t3.jpg"
 } = Astro.props;
 ---
 
 <div id="hero-banner">
   <div class="banner-image-wrapper">
     <picture>
-      <source media="(max-width: 600px)" srcset="/images/banner-600w.webp" />
-      <source media="(max-width: 800px)" srcset="/images/banner-800w.webp" />
+      <source media="(max-width: 600px)" srcset="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801459/banner-600w_doyor8.jpg" />
+      <source media="(max-width: 800px)" srcset="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801459/banner-800w_wrd10u.jpg" />
       <img 
         src={image}
         alt={title}
@@ -142,10 +142,7 @@ const {
     font-weight: 800;
     margin-bottom: 0.5rem;
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
-    background: linear-gradient(135deg, #fff, var(--red-1));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--red-1);
     animation: glow 3s ease-in-out infinite alternate;
   }
 

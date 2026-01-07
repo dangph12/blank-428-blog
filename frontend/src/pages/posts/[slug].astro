@@ -80,10 +80,10 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
           <div class="post-meta">
             {post.publishedAt && (
               <time class="post-date" datetime={post.publishedAt}>
-                {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                {new Date(post.publishedAt).toLocaleDateString('vi-VN', {
                   year: 'numeric',
                   month: 'long',
-                  day: 'numeric'
+                  day: 'numeric',
                 })}
               </time>
             )}

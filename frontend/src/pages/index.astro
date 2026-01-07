@@ -30,10 +30,6 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
     <div class="content-layout">
       <div class="main-content">
         <section class="posts-section">
-          <AnimatedSection animation="fade-in" delay={0.2}>
-            <h2 class="section-title">Recent Posts</h2>
-          </AnimatedSection>
-
           {posts && posts.length > 0 ? (
             <div class="posts-list">
               {posts.map((post, index) => (
