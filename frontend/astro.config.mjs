@@ -27,14 +27,14 @@ export default defineConfig({
         studioUrl: PUBLIC_SANITY_STUDIO_URL
       }
     }),
-    react(),
-    tailwindcss()
+    react()
   ],
   adapter: netlify(),
   image: {
     domains: ['https://cdn.sanity.io']
   },
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         '~': '/src'
