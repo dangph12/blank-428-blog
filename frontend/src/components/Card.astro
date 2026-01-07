@@ -1,4 +1,6 @@
 ---
+import { Calendar } from '@lucide/astro';
+
 interface Props {
   title: string;
   excerpt?: string;
@@ -16,7 +18,7 @@ const isOdd = index % 2 === 1;
   <a href={href} class="card-link" aria-label={title}>
     {image && (
       <div class={`card-image ${isOdd ? 'right' : 'left'}`}>
-        <img src={image} alt={title} loading="lazy" />
+        <img src={image} alt={title} loading="lazy" width="400" height="200" />
       </div>
     )}
     <div class="card-content">
@@ -24,6 +26,7 @@ const isOdd = index % 2 === 1;
       {excerpt && <p class="card-excerpt">{excerpt}</p>}
       {date && (
         <time class="card-date" datetime={date}>
+          <Calendar size={16} />
           {new Date(date).toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
@@ -193,6 +196,7 @@ const isOdd = index % 2 === 1;
   .card-date {
     display: inline-flex;
     align-items: center;
+    gap: 0.5rem;
     font-size: 0.9rem;
     color: var(--grey-9);
     padding: 0.5rem 1rem;
@@ -200,11 +204,6 @@ const isOdd = index % 2 === 1;
     border-radius: 20px;
     width: fit-content;
     transition: all 0.3s ease;
-  }
-
-  .card-date::before {
-    content: '📅';
-    margin-right: 0.5rem;
   }
 
   .post-card:hover .card-date {
