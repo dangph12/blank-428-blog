@@ -1,18 +1,16 @@
 ---
-// ./src/layouts/Layout.astro
 import { VisualEditing } from "@sanity/astro/visual-editing";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
-import Loader from "../components/Loader.astro";
-import PaceLoader from "../components/PaceLoader.astro";
-import LazyLoad from "../components/LazyLoad.astro";
-import BackToTop from "../components/BackToTop.astro";
-import ClickEffect from "../components/ClickEffect.astro";
+import Header from "~/components/Header.astro";
+import Footer from "~/components/Footer.astro";
+import Loader from "~/components/Loader.astro";
+import PaceLoader from "~/components/PaceLoader.astro";
+import LazyLoad from "~/components/LazyLoad.astro";
+import BackToTop from "~/components/BackToTop.astro";
+import ClickEffect from "~/components/ClickEffect.astro";
 
-// Import global styles
-import "../styles/variables.css";
-import "../styles/animations.css";
-import "../styles/global.css";
+import "~/styles/variables.css";
+import "~/styles/animations.css";
+import "~/styles/global.css";
 
 const visualEditingEnabled =
   import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED == "true";

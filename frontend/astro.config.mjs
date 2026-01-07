@@ -33,5 +33,12 @@ export default defineConfig({
   adapter: netlify(),
   image: {
     domains: ['https://cdn.sanity.io']
+  },
+  vite: {
+    resolve: {
+      alias: {
+        '~': '/src'
+      }
+    }
   }
 });

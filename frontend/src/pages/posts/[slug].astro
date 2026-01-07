@@ -1,10 +1,10 @@
 ---
 // ./src/pages/post/[slug].astro
 import type { SanityDocument } from "@sanity/client";
-import { loadQuery } from "../../lib/load-query";
-import Layout from "../../layouts/Layout.astro";
-import PortableText from "../../components/PortableText.astro";
-import AnimatedSection from "../../components/AnimatedSection.astro";
+import { loadQuery } from "~/lib/load-query";
+import Layout from "~/layouts/Layout.astro";
+import PortableText from "~/components/PortableText.astro";
+import AnimatedSection from "~/components/AnimatedSection.astro";
 
 export async function getStaticPaths() {
   const { data: posts } = await loadQuery<SanityDocument[]>({
