@@ -33,10 +33,10 @@ const excerpt = rawExcerpt
       {date && (
         <time class="card-date" datetime={date}>
           <Calendar size={16} />
-          {new Date(date).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+          {new Date(date).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
           })}
         </time>
       )}
