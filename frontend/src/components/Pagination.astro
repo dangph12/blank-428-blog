@@ -1,0 +1,190 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl?: string;
+}
+
+const { currentPage, totalPages, baseUrl = "/" } = Astro.props;
+
+const getPageUrl = (page: number) => {
+  if (page === 1) {
+    return baseUrl;
+  }
+  return `${baseUrl}?page=${page}`;
+};
+
+// Calculate buttons to show: first, prev, current, next, last
+const firstPage = 1;
+const prevPage = Math.max(1, currentPage - 1);
+const nextPage = Math.min(totalPages, currentPage + 1);
+const lastPage = totalPages;
+
+const buttons = [
+  { page: firstPage, label: "1" },
+  { page: prevPage, label: prevPage.toString() },
+  { page: currentPage, label: currentPage.toString() },
+  { page: nextPage, label: nextPage.toString() },
+  { page: lastPage, label: lastPage.toString() },
+];
+
+// Remove duplicates while preserving order
+const uniqueButtons = buttons.reduce((acc: typeof buttons, btn) => {
+  if (!acc.find(b => b.page === btn.page)) {
+    acc.push(btn);
+  }
+  return acc;
+}, []);
+---
+
+{totalPages > 1 && (
+  <div class="pagination">
+    <nav class="pagination-nav" aria-label="Pagination Navigation">
+      {currentPage > 1 && (
+        <a 
+          href={getPageUrl(currentPage - 1)} 
+          class="pagination-link pagination-prev" 
+          aria-label="Previous page"
+          data-astro-reload
+        >
+          ←
+        </a>
+      )}
+
+      <div class="pagination-pages">
+        {uniqueButtons.map((btn) => (
+          btn.page === currentPage ? (
+            <span class="pagination-button pagination-current" aria-current="page">
+              {btn.label}
+            </span>
+          ) : (
+            <a 
+              href={getPageUrl(btn.page)} 
+              class="pagination-button"
+              aria-label={`Go to page ${btn.page}`}
+              data-astro-reload
+            >
+              {btn.label}
+            </a>
+          )
+        ))}
+      </div>
+
+      {currentPage < totalPages && (
+        <a 
+          href={getPageUrl(currentPage + 1)} 
+          class="pagination-link pagination-next" 
+          aria-label="Next page"
+          data-astro-reload
+        >
+          →
+        </a>
+      )}
+    </nav>
+  </div>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+  }
+
+  .pagination-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .pagination-pages {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .pagination-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    color: var(--color-default);
+    background: var(--color-wrap);
+    border: 2px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+    cursor: var(--cursor-pointer);
+  }
+
+  .pagination-button:hover {
+    background: var(--red-5);
+    border-color: var(--red-1);
+    color: var(--red-1);
+    transform: translateY(-2px);
+  }
+
+  .pagination-current {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    background: var(--red-1);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-red-6-shadow);
+  }
+
+  .pagination-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--color-wrap);
+    color: var(--color-default);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1.2rem;
+    box-shadow: var(--shadow-card);
+    border: 2px solid var(--color-border);
+    cursor: var(--cursor-pointer);
+  }
+
+  .pagination-link:hover {
+    background: var(--red-1);
+    color: white;
+    border-color: var(--red-1);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .pagination-button,
+    .pagination-current,
+    .pagination-link {
+      width: 40px;
+      height: 40px;
+      font-size: 0.9rem;
+    }
+
+    .pagination-pages {
+      gap: 0.5rem;
+    }
+
+    .pagination-nav {
+      gap: 0.75rem;
+    }
+  }
+</style>

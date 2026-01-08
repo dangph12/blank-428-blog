@@ -4,11 +4,38 @@ import Card from "~/components/Card.astro";
 import AnimatedSection from "~/components/AnimatedSection.astro";
 import HeroBanner from "~/components/HeroBanner.astro";
 import Sidebar from "~/components/Sidebar.astro";
+import Pagination from "~/components/Pagination.astro";
 import { loadQuery } from "~/lib/load-query";
 import type { SanityDocument } from "@sanity/client";
 
-const { data: posts } = await loadQuery<SanityDocument[]>({
-  query: `*[_type == "post"] | order(publishedAt desc) {
+// Force server-side rendering - don't prerender this page
+export const prerender = false;
+
+const postsPerPage = 4;
+const pageParam = Astro.url.searchParams.get("page");
+const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+
+// Get total count
+const { data: totalCount } = await loadQuery<number>({
+  query: `count(*[_type == "post"])`,
+});
+
+const totalPages = Math.ceil((totalCount || 0) / postsPerPage);
+
+// Validate current page and redirect if invalid
+if (currentPage < 1 || (totalPages > 0 && currentPage > totalPages)) {
+  return Astro.redirect("/");
+}
+
+const validPage = currentPage;
+
+// Calculate offset - GROQ uses inclusive ranges [start..end]
+const offset = (validPage - 1) * postsPerPage;
+const limit = offset + postsPerPage - 1;
+
+// Fetch posts for current page
+const { data: currentPagePosts } = await loadQuery<SanityDocument[]>({
+  query: `*[_type == "post"] | order(publishedAt desc) [${offset}..${limit}] {
     _id,
     title,
     slug,
@@ -19,20 +46,20 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
 });
 ---
 
-<Layout title="Blank.428 - Con dốc nhạt nhoà">
+<Layout title="Blank.428 - Con độc nhất nhỏ">
   <AnimatedSection animation="fade-in" duration={0.8}>
     <HeroBanner 
       title="Blank.428"
-      subtitle="Con dốc nhạt nhoà"
+      subtitle="Con độc nhất nhỏ"
     />
   </AnimatedSection>
   <div class="home-container">
     <div class="content-layout">
       <div class="main-content">
         <section class="posts-section">
-          {posts && posts.length > 0 ? (
+          {currentPagePosts && currentPagePosts.length > 0 ? (
             <div class="posts-list">
-              {posts.map((post, index) => (
+              {currentPagePosts.map((post, index) => (
                 <AnimatedSection 
                   animation="fade-up" 
                   delay={0.1 * (index + 1)}
@@ -51,9 +78,21 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
           ) : (
             <AnimatedSection animation="fade-in" delay={0.3}>
               <div class="no-posts">
-                <p>No posts yet. Check back soon!</p>
+                <p>No posts found for this page.</p>
               </div>
             </AnimatedSection>
+          )}
+
+          {totalPages && totalPages > 1 && (
+            <div class="pagination-container">
+              <AnimatedSection animation="fade-up" delay={0.5}>
+                <Pagination 
+                  currentPage={validPage}
+                  totalPages={totalPages}
+                  baseUrl="/"
+                />
+              </AnimatedSection>
+            </div>
           )}
         </section>
       </div>
@@ -114,7 +153,7 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
 
   .main-content {
     flex: 1;
-    min-width: 0; /* Prevents flex item from overflowing */
+    min-width: 0;
     width: 100%;
   }
 
@@ -127,6 +166,12 @@ const { data: posts } = await loadQuery<SanityDocument[]>({
 
   .posts-section {
     margin-bottom: 2rem;
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
   }
 
   .section-title {

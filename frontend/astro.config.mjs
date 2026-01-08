@@ -16,6 +16,9 @@ const {
 
 // https://astro.build/config
 export default defineConfig({
+  // Add this line to enable hybrid rendering (SSR + Static)
+  output: 'static',
+
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,
