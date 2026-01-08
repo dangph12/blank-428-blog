@@ -1,5 +1,6 @@
 ---
 import { Calendar } from '@lucide/astro';
+import { stegaClean } from '@sanity/client/stega';
 
 interface Props {
   title: string;
@@ -10,8 +11,13 @@ interface Props {
   index?: number;
 }
 
-const { title, excerpt, date, href, image, index = 0 } = Astro.props;
+const { title, excerpt: rawExcerpt, date, href, image, index = 0 } = Astro.props;
 const isOdd = index % 2 === 1;
+
+// Clean stega, then prevent lonely words
+const excerpt = rawExcerpt 
+  ? stegaClean(rawExcerpt).trim().replace(/\s(\S+)$/, '\u00A0$1')
+  : undefined;
 ---
 
 <article class={`post-card ${isOdd ? 'right' : 'left'}`}>

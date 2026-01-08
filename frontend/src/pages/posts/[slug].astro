@@ -1,6 +1,7 @@
 ---
 // ./src/pages/post/[slug].astro
 import type { SanityDocument } from "@sanity/client";
+import { stegaClean } from '@sanity/client/stega';
 import { loadQuery } from "~/lib/load-query";
 import Layout from "~/layouts/Layout.astro";
 import PortableText from "~/components/PortableText.astro";
@@ -39,6 +40,14 @@ const { data: post } = await loadQuery<{
   params,
 });
 
+// Prevent lonely words by replacing last space with non-breaking space
+const processedPost = {
+  ...post,
+  excerpt: post.excerpt 
+    ? stegaClean(post.excerpt).trim().replace(/\s(\S+)$/, '\u00A0$1')
+    : post.excerpt
+};
+
 // Get all posts to determine prev/next
 const { data: allPosts } = await loadQuery<Array<{
   _id: string;
@@ -66,31 +75,31 @@ const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
 const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 ---
 
-<Layout title={post.title}>
+<Layout title={processedPost.title}>
   <article class="post-article">
     <div class="container">
       <AnimatedSection animation="fade-up" duration={0.8}>
         <header class="post-header">
-          <h1 class="post-title">{post.title}</h1>
+          <h1 class="post-title">{processedPost.title}</h1>
           
-          {post.excerpt && (
-            <p class="post-excerpt">{post.excerpt}</p>
+          {processedPost.excerpt && (
+            <p class="post-excerpt">{processedPost.excerpt}</p>
           )}
           
           <div class="post-meta">
-            {post.publishedAt && (
-              <time class="post-date" datetime={post.publishedAt}>
-                {new Date(post.publishedAt).toLocaleDateString('vi-VN', {
+            {processedPost.publishedAt && (
+              <time class="post-date" datetime={processedPost.publishedAt}>
+                {new Date(processedPost.publishedAt).toLocaleDateString('vi-VN', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })}
               </time>
             )}
-            {post.author && (
+            {processedPost.author && (
               <>
                 <span class="meta-separator">•</span>
-                <span class="post-author">{post.author}</span>
+                <span class="post-author">{processedPost.author}</span>
               </>
             )}
           </div>
@@ -99,7 +108,7 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
 
       <AnimatedSection animation="fade-in" delay={0.3}>
         <div class="post-content">
-          <PortableText portableText={post.body} />
+          <PortableText portableText={processedPost.body} />
         </div>
       </AnimatedSection>
 
@@ -178,6 +187,7 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
     line-height: 1.6;
     margin-bottom: 1.5rem;
     font-style: italic;
+    word-spacing: normal;
   }
 
   .post-meta {
