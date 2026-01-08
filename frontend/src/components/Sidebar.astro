@@ -1,4 +1,11 @@
 ---
+import { loadQuery } from '../lib/load-query';
+
+const postsQuery = `count(*[_type == "post" && defined(slug.current)])`;
+const categoriesQuery = `count(*[_type == "category" && defined(slug.current)])`;
+
+const { data: postCount } = await loadQuery({ query: postsQuery });
+const { data: categoryCount } = await loadQuery({ query: categoriesQuery });
 ---
 
 <aside id="sidebar" aria-label="Sidebar">
@@ -16,16 +23,12 @@
 
       <div class="sidebar-state">
         <div class="sidebar-state-item">
-          <div class="sidebar-state-label">Posts</div>
-          <div class="sidebar-state-number">2</div>
+          <div class="sidebar-state-label">Bài viết</div>
+          <div class="sidebar-state-number">{postCount}</div>
         </div>
         <div class="sidebar-state-item">
-          <div class="sidebar-state-label">Categories</div>
-          <div class="sidebar-state-number">1</div>
-        </div>
-        <div class="sidebar-state-item">
-          <div class="sidebar-state-label">Tags</div>
-          <div class="sidebar-state-number">3</div>
+          <div class="sidebar-state-label">Loạt truyện</div>
+          <div class="sidebar-state-number">{categoryCount}</div>
         </div>
       </div>
 
