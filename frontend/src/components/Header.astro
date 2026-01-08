@@ -1,6 +1,18 @@
 ---
-import { Moon, Sun } from "@lucide/astro";
+import { Moon, Sun, ChevronDown } from "@lucide/astro";
+import { loadQuery } from "~/lib/load-query";
+import type { SanityDocument } from "@sanity/client";
+
 const { title = "Blank.428" } = Astro.props;
+
+// Fetch categories
+const { data: categories } = await loadQuery<SanityDocument[]>({
+  query: `*[_type == "category"] | order(title asc) {
+    _id,
+    title,
+    "slug": slug.current
+  }`,
+});
 ---
 
 <header id="header-nav" class="site-header">
@@ -11,7 +23,25 @@ const { title = "Blank.428" } = Astro.props;
       </a>
       
       <nav class="main-nav">
-        <a href="/posts" class="nav-link">Bài viết</a>
+        <div class="nav-dropdown-wrapper">
+          <button class="nav-link nav-dropdown-toggle" aria-label="Categories menu" aria-expanded="false">
+            <span>Bài viết</span>
+            <ChevronDown size={16} />
+          </button>
+          {categories && categories.length > 0 && (
+            <div class="nav-dropdown-menu">
+              <a href="/posts" class="nav-dropdown-item">Tất cả</a>
+              {categories.map((category) => (
+                <a 
+                  href={`/posts?category=${category.slug}`} 
+                  class="nav-dropdown-item"
+                >
+                  {category.title}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
         <a href="/about" class="nav-link">Giới thiệu</a>
         
         <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
@@ -92,6 +122,13 @@ const { title = "Blank.428" } = Astro.props;
     font-weight: 500;
     transition: color 0.2s ease;
     position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .nav-link::after {
@@ -111,6 +148,74 @@ const { title = "Blank.428" } = Astro.props;
 
   .nav-link:hover::after {
     width: 100%;
+  }
+
+  .nav-dropdown-wrapper {
+    position: relative;
+  }
+
+  .nav-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-dropdown-toggle svg {
+    transition: transform 0.3s ease;
+  }
+
+  .nav-dropdown-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+
+  .nav-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    background: var(--color-wrap);
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .nav-dropdown-wrapper:hover .nav-dropdown-menu,
+  .nav-dropdown-wrapper.active .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .nav-dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--color-default);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .nav-dropdown-item:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .nav-dropdown-item:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .nav-dropdown-item:hover {
+    background: var(--red-5);
+    color: var(--red-1);
   }
 
   .theme-toggle-btn {
@@ -182,6 +287,38 @@ const { title = "Blank.428" } = Astro.props;
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
   });
 
+  // Dropdown toggle functionality
+  function initDropdown() {
+    const dropdownWrapper = document.querySelector('.nav-dropdown-wrapper');
+    const toggleBtn = document.querySelector('.nav-dropdown-toggle');
+
+    if (!dropdownWrapper || !toggleBtn) return;
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+      toggleBtn.setAttribute('aria-expanded', (!isExpanded).toString());
+      dropdownWrapper.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!dropdownWrapper.contains(e.target as Node)) {
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        dropdownWrapper.classList.remove('active');
+      }
+    });
+
+    // Close dropdown when a link is clicked
+    const dropdownItems = document.querySelectorAll('.nav-dropdown-item');
+    dropdownItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        dropdownWrapper.classList.remove('active');
+      });
+    });
+  }
+
   // Theme toggle functionality
   function initThemeToggle() {
     const btn = document.getElementById('theme-toggle') as HTMLButtonElement;
@@ -218,5 +355,6 @@ const { title = "Blank.428" } = Astro.props;
     });
   }
 
+  initDropdown();
   initThemeToggle();
 </script>

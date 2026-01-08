@@ -11,7 +11,8 @@ const getPageUrl = (page: number) => {
   if (page === 1) {
     return baseUrl;
   }
-  return `${baseUrl}?page=${page}`;
+  const separator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${separator}page=${page}`;
 };
 
 // Calculate buttons to show: first, prev, current, next, last

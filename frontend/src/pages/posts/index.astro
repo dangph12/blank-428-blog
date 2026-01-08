@@ -1,0 +1,194 @@
+---
+import Layout from "~/layouts/Layout.astro";
+import Card from "~/components/Card.astro";
+import AnimatedSection from "~/components/AnimatedSection.astro";
+import Pagination from "~/components/Pagination.astro";
+import { loadQuery } from "~/lib/load-query";
+import type { SanityDocument } from "@sanity/client";
+
+// Force server-side rendering
+export const prerender = false;
+
+const postsPerPage = 4;
+const pageParam = Astro.url.searchParams.get("page");
+const categorySlug = Astro.url.searchParams.get("category");
+const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+
+// Build filter query based on category
+let filterQuery = '*[_type == "post"]';
+if (categorySlug) {
+  filterQuery = `*[_type == "post" && "${categorySlug}" in categories[]->slug.current]`;
+}
+
+// Get total count
+const { data: totalCount } = await loadQuery<number>({
+  query: `count(${filterQuery})`,
+});
+
+const totalPages = Math.ceil((totalCount || 0) / postsPerPage);
+
+// Validate current page and redirect if invalid
+if (currentPage < 1 || (totalPages > 0 && currentPage > totalPages)) {
+  return Astro.redirect(categorySlug ? `/posts?category=${categorySlug}` : "/posts");
+}
+
+const validPage = currentPage;
+
+// Calculate offset
+const offset = (validPage - 1) * postsPerPage;
+const limit = offset + postsPerPage - 1;
+
+// Fetch posts for current page
+const { data: currentPagePosts } = await loadQuery<SanityDocument[]>({
+  query: `${filterQuery} | order(publishedAt desc) [${offset}..${limit}] {
+    _id,
+    title,
+    slug,
+    excerpt,
+    publishedAt,
+    "imageUrl": mainImage.asset->url
+  }`,
+});
+
+// Fetch category title if filtering
+let categoryTitle: string | null = null;
+if (categorySlug) {
+  const { data: categoryData } = await loadQuery<SanityDocument>({
+    query: `*[_type == "category" && slug.current == "${categorySlug}"][0] {
+      title
+    }`,
+  });
+  categoryTitle = categoryData?.title || null;
+}
+---
+
+<Layout title={categoryTitle ? `${categoryTitle} - Blank.428` : "Bài viết - Blank.428"}>
+  <div class="posts-page-container">
+    <div class="posts-header">
+      <h1 class="posts-title">
+        {categoryTitle ? categoryTitle : "Tất cả bài viết"}
+      </h1>
+      {categoryTitle && (
+        <a href="/posts" class="back-link">← Xem tất cả</a>
+      )}
+    </div>
+
+    <section class="posts-section">
+      {currentPagePosts && currentPagePosts.length > 0 ? (
+        <div class="posts-list">
+          {currentPagePosts.map((post, index) => (
+            <AnimatedSection 
+              animation="fade-up" 
+              delay={0.1 * (index + 1)}
+            >
+              <Card
+                title={post.title}
+                excerpt={post.excerpt}
+                date={post.publishedAt}
+                href={`/posts/${post.slug.current}`}
+                image={post.imageUrl}
+                index={index}
+              />
+            </AnimatedSection>
+          ))}
+        </div>
+      ) : (
+        <AnimatedSection animation="fade-in" delay={0.3}>
+          <div class="no-posts">
+            <p>Không có bài viết nào {categoryTitle ? `trong danh mục "${categoryTitle}"` : ""}.</p>
+          </div>
+        </AnimatedSection>
+      )}
+
+      {totalPages && totalPages > 1 && (
+        <div class="pagination-container">
+          <AnimatedSection animation="fade-up" delay={0.5}>
+            <Pagination 
+              currentPage={validPage}
+              totalPages={totalPages}
+              baseUrl={categorySlug ? `/posts?category=${categorySlug}` : "/posts"}
+            />
+          </AnimatedSection>
+        </div>
+      )}
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .posts-page-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 1rem 2rem;
+  }
+
+  .posts-header {
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .posts-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-default);
+  }
+
+  .back-link {
+    color: var(--red-1);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .back-link:hover {
+    color: var(--red-2);
+  }
+
+  .posts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .no-posts {
+    text-align: center;
+    padding: 2rem;
+    color: var(--grey-9);
+    font-size: 1.1rem;
+  }
+
+  .pagination-container {
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .posts-page-container {
+      padding: 2rem 1rem 1rem;
+    }
+
+    .posts-title {
+      font-size: 1.75rem;
+    }
+
+    .posts-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .back-link {
+      width: 100%;
+      display: inline-block;
+    }
+  }
+</style>
