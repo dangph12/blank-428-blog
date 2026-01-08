@@ -1,0 +1,297 @@
+---
+import { loadQuery } from "~/lib/load-query";
+import { urlForImage } from "~/lib/url-for-image";
+import type { SanityDocument } from "@sanity/client";
+import PortableText from "~/components/PortableText.astro";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+// Fetch authors
+const { data: authors } = await loadQuery<SanityDocument[]>({
+  query: `*[_type == "author"] | order(name asc) {
+    _id,
+    name,
+    slug,
+    image,
+    bio
+  }`,
+});
+---
+
+<div class={`about-section ${className || ""}`}>
+  <!-- Blog Introduction -->
+  <section class="blog-intro">
+    <div class="intro-content">
+      <h1 class="intro-title">Về Blank.428</h1>
+      <p class="intro-description">
+        Chào mừng bạn đến với Blank.428, một blog được dành riêng để khám phá các ý tưởng, chia sẻ kiến thức và đi sâu vào những chủ đề quan trọng. 
+        Sứ mệnh của chúng tôi là tạo ra nội dung có ý nghĩa, gợi cảm hứng cho độc giả và kích thích những cuộc trò chuyện sâu sắc.
+      </p>
+      <p class="intro-description">
+        Tại đây, bạn sẽ tìm thấy các bài viết, insights và những câu chuyện được viết bởi đội ngũ tác giả tài năng của chúng tôi. 
+        Chúng tôi bao quát nhiều chủ đề khác nhau, luôn cố gắng cung cấp nội dung có giá trị và được nghiên cứu kỹ lưỡng.
+      </p>
+    </div>
+  </section>
+
+  <!-- Authors Section -->
+  <section class="authors-section">
+    <h2 class="section-title">Gặp Gỡ Các Tác Giả Của Chúng Tôi</h2>
+    
+    {authors && authors.length > 0 ? (
+      <div class="authors-grid">
+        {authors.map((author) => (
+          <div class="author-card">
+            <div class="author-image-wrapper">
+              {author.image && (
+                <img
+                  src={urlForImage(author.image.asset._ref).width(300).height(300).url()}
+                  alt={author.image.alt || author.name}
+                  class="author-image"
+                  loading="lazy"
+                />
+              )}
+              {!author.image && (
+                <div class="author-image-placeholder">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div class="author-info">
+              <h3 class="author-name">{author.name}</h3>
+              {author.bio && author.bio.length > 0 && (
+                <div class="author-bio">
+                  <PortableText value={author.bio} />
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="no-authors">
+        <p>Chưa có tác giả nào.</p>
+      </div>
+    )}
+  </section>
+</div>
+
+<style>
+  .about-section {
+    width: 100%;
+  }
+
+  /* Blog Introduction */
+  .blog-intro {
+    margin-bottom: 4rem;
+    padding: 2rem;
+    background: var(--color-wrap);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .intro-content {
+    max-width: 100%;
+  }
+
+  .intro-title {
+    font-size: 2.5rem;
+    margin: 0 0 1.5rem 0;
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .intro-description {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+  }
+
+  .intro-description:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Authors Section */
+  .authors-section {
+    margin-top: 3rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    padding-bottom: 1rem;
+    color: var(--text-primary);
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--red-1), var(--red-2));
+    border-radius: 2px;
+    box-shadow: var(--shadow-red-6-shadow);
+  }
+
+  .authors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    .authors-grid {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .authors-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Author Card */
+  .author-card {
+    background: var(--color-wrap);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .author-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover, var(--shadow-card));
+  }
+
+  .author-image-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--grey-2), var(--grey-3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .author-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .author-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--grey-6);
+    font-size: 3rem;
+  }
+
+  .author-image-placeholder svg {
+    width: 60%;
+    height: 60%;
+  }
+
+  .author-info {
+    padding: 1.5rem;
+  }
+
+  .author-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+  }
+
+  .author-bio {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .author-bio :global(p) {
+    margin: 0;
+  }
+
+  .author-bio :global(p:not(:last-child)) {
+    margin-bottom: 0.5rem;
+  }
+
+  .no-authors {
+    text-align: center;
+    padding: 3rem;
+    background: var(--color-wrap);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .no-authors p {
+    color: var(--grey-9);
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .blog-intro {
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .intro-title {
+      font-size: 2rem;
+    }
+
+    .intro-description {
+      font-size: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .blog-intro {
+      padding: 1rem;
+    }
+
+    .intro-title {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .intro-description {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .author-info {
+      padding: 1rem;
+    }
+
+    .author-name {
+      font-size: 1.1rem;
+    }
+  }
+</style>

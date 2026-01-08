@@ -1,0 +1,104 @@
+---
+import Layout from "~/layouts/Layout.astro";
+import AnimatedSection from "~/components/AnimatedSection.astro";
+import HeroBanner from "~/components/HeroBanner.astro";
+import Sidebar from "~/components/Sidebar.astro";
+import AboutSection from "~/components/AboutSection.astro";
+
+// Force server-side rendering
+export const prerender = false;
+---
+
+<Layout title="Về Chúng Tôi - Blank.428">
+  <AnimatedSection animation="fade-in" duration={0.8}>
+    <HeroBanner 
+      title="Về Chúng Tôi"
+      subtitle="Tìm hiểu về blog và các tác giả của chúng tôi"
+    />
+  </AnimatedSection>
+  <div class="about-container">
+    <div class="content-layout">
+      <div class="main-content">
+        <AnimatedSection animation="fade-up" delay={0.2}>
+          <AboutSection />
+        </AnimatedSection>
+      </div>
+
+      <div class="sidebar-wrapper">
+        <AnimatedSection animation="fade-in" delay={0.3}>
+          <Sidebar />
+        </AnimatedSection>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .about-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-top: -400px;
+    position: relative;
+    z-index: 10;
+  }
+
+  @media (max-width: 768px) {
+    .about-container {
+      margin-top: -450px;
+      padding: 0;
+    }
+  }
+
+  .content-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-top: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  @media (max-width: 1200px) {
+    .content-layout {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .sidebar-wrapper {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .content-layout {
+      gap: 1.5rem;
+      padding: 0 0.75rem;
+    }
+  }
+
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+
+  @media (max-width: 1200px) {
+    .main-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .about-container {
+      padding: 0;
+    }
+
+    .content-layout {
+      gap: 1.5rem;
+      padding: 0 0.75rem;
+    }
+  }
+</style>
