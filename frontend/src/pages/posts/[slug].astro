@@ -108,7 +108,7 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
 
       <AnimatedSection animation="fade-in" delay={0.3}>
         <div class="post-content">
-          <PortableText portableText={processedPost.body} />
+          <PortableText value={processedPost.body} />
         </div>
       </AnimatedSection>
 
