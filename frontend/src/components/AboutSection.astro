@@ -149,13 +149,13 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
 
   .authors-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: 1fr;
     gap: 2rem;
   }
 
   @media (max-width: 768px) {
     .authors-grid {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1.5rem;
     }
   }
@@ -173,6 +173,10 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
     overflow: hidden;
     box-shadow: var(--shadow-card);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    height: auto;
+    min-height: 240px;
   }
 
   .author-card:hover {
@@ -181,8 +185,9 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
   }
 
   .author-image-wrapper {
-    width: 100%;
-    aspect-ratio: 1;
+    width: 240px;
+    height: 240px;
+    flex-shrink: 0;
     overflow: hidden;
     background: linear-gradient(135deg, var(--grey-2), var(--grey-3));
     display: flex;
@@ -213,6 +218,10 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
 
   .author-info {
     padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .author-name {
@@ -220,12 +229,17 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
     font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 0.75rem 0;
+    flex-shrink: 0;
   }
 
   .author-bio {
     font-size: 0.95rem;
     line-height: 1.6;
     color: var(--text-secondary);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
   }
 
   .author-bio :global(p) {
@@ -268,6 +282,20 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
     .section-title {
       font-size: 1.5rem;
     }
+
+    .author-card {
+      flex-direction: row;
+      min-height: 220px;
+    }
+
+    .author-image-wrapper {
+      width: 220px;
+      height: 220px;
+    }
+
+    .author-bio {
+      -webkit-line-clamp: 7;
+    }
   }
 
   @media (max-width: 480px) {
@@ -290,12 +318,30 @@ const { data: authors } = await loadQuery<SanityDocument[]>({
       margin-bottom: 1.5rem;
     }
 
+    .author-card {
+      flex-direction: column;
+      height: auto;
+    }
+
+    .author-image-wrapper {
+      width: 100%;
+      height: 100vw;
+      max-height: 400px;
+    }
+
     .author-info {
       padding: 1rem;
     }
 
     .author-name {
       font-size: 1.1rem;
+    }
+
+    .author-bio {
+      font-size: 0.85rem;
+      -webkit-line-clamp: unset;
+      overflow: visible;
+      display: block;
     }
   }
 </style>
