@@ -1,0 +1,331 @@
+---
+import "photoswipe/style.css";
+import Layout from "~/layouts/Layout.astro";
+import AnimatedSection from "~/components/AnimatedSection.astro";
+---
+
+<Layout title="Thư viện ảnh - Blank.428">
+  <div class="gallery-page">
+    <AnimatedSection animation="fade-up" duration={0.6}>
+      <header class="gallery-header">
+        <h1 class="gallery-title">Thư viện ảnh</h1>
+        <p class="gallery-subtitle">
+          Những khoảnh khắc đẹp trên con dốc nhạt nhoà
+        </p>
+      </header>
+    </AnimatedSection>
+
+    <AnimatedSection animation="fade-in" delay={0.3}>
+      <div id="gallery-grid" class="gallery-grid"></div>
+      <div id="gallery-loader" class="gallery-loader">
+        <span>Đang tải...</span>
+      </div>
+    </AnimatedSection>
+  </div>
+</Layout>
+
+<script>
+  import PhotoSwipeLightbox from "photoswipe/lightbox";
+
+  let lightbox = null;
+  let pswpInstance = null;
+  const grid = document.getElementById("gallery-grid");
+  const loader = document.getElementById("gallery-loader");
+  let cursor = null;
+  let loading = false;
+  let hasMore = true;
+  let colCount = 0;
+  let columnHeights = [];
+
+  function getColCount() {
+    const w = window.innerWidth;
+    if (w < 640) return 1;
+    if (w < 1024) return 2;
+    return 3;
+  }
+
+  function initGallery() {
+    if (pswpInstance) return;
+    if (lightbox) {
+      lightbox.destroy();
+      lightbox = null;
+    }
+    if (!grid || !grid.querySelector(".gallery-item")) return;
+
+    lightbox = new PhotoSwipeLightbox({
+      gallery: "#gallery-grid",
+      children: "a",
+      pswpModule: () => import("photoswipe"),
+      bgOpacity: 0.92,
+      preload: [3, 3],
+    });
+
+    lightbox.on("bindEvents", () => {
+      const pswp = lightbox.pswp;
+      if (!pswp) return;
+      pswpInstance = pswp;
+
+      pswp.on("afterChange", () => {
+        const total = pswp.getNumItems();
+        const currIndex = pswp.currIndex;
+        if (hasMore && total - currIndex <= 5) {
+          loadMore();
+        }
+      });
+
+      pswp.on("close", () => {
+        pswpInstance = null;
+      });
+    });
+
+    lightbox.init();
+  }
+
+  function rebuildCols() {
+    if (pswpInstance) return;
+    const newCount = getColCount();
+    if (newCount === colCount && grid.children.length > 0) return;
+    colCount = newCount;
+    colIndex = 0;
+
+    const items = [];
+    for (const col of grid.children) {
+      items.push(...col.querySelectorAll(".gallery-item"));
+    }
+
+    grid.innerHTML = "";
+    for (let i = 0; i < colCount; i++) {
+      const col = document.createElement("div");
+      col.className = "gallery-col";
+      grid.appendChild(col);
+    }
+
+    const cols = grid.children;
+    items.forEach((item, i) => {
+      cols[i % colCount].appendChild(item);
+    });
+
+    initGallery();
+  }
+
+  function appendImages(images) {
+    if (colCount === 0) rebuildCols();
+    const cols = grid.children;
+    const loads = [];
+    for (const img of images) {
+      const a = document.createElement("a");
+      a.href = img.src;
+      a.dataset.pswpWidth = img.width;
+      a.dataset.pswpHeight = img.height;
+      a.className = "gallery-item";
+      const ratio = img.height / img.width;
+      a.dataset.ratio = ratio;
+
+      const imgEl = document.createElement("img");
+      imgEl.src = img.thumb;
+      imgEl.srcset = img.srcset || "";
+      imgEl.sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
+      imgEl.alt = img.alt || "";
+      imgEl.width = img.width;
+      imgEl.height = img.height;
+      imgEl.loading = "lazy";
+      imgEl.decoding = "async";
+
+      a.appendChild(imgEl);
+      cols[colIndex % colCount].appendChild(a);
+      colIndex++;
+
+      loads.push(imgEl.decode().catch(() => {}));
+    }
+    initGallery();
+    return Promise.all(loads);
+  }
+
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    loading = true;
+    if (loader) loader.style.display = "flex";
+
+    try {
+      const params = new URLSearchParams();
+      if (cursor) params.set("cursor", cursor);
+      const res = await fetch(`/api/gallery.json?${params}`);
+      const data = await res.json();
+
+      if (data.error) {
+        hasMore = false;
+        if (loader)
+          loader.querySelector("span").textContent = "Không thể tải ảnh";
+        return;
+      }
+
+      await appendImages(data.images);
+      if (pswpInstance) {
+        await new Promise((r) => requestAnimationFrame(r));
+        pswpInstance.options.dataSource = Array.from(
+          grid.querySelectorAll("a"),
+        );
+        pswpInstance.refresh();
+      }
+      cursor = data.nextCursor;
+      if (!cursor) hasMore = false;
+    } catch (e) {
+      hasMore = false;
+      if (loader) loader.querySelector("span").textContent = "Lỗi tải ảnh";
+    } finally {
+      loading = false;
+      if (loader && hasMore) loader.style.display = "flex";
+      else if (loader) loader.style.display = "none";
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) loadMore();
+    },
+    { rootMargin: "400px" },
+  );
+
+  document.addEventListener("astro:page-load", () => {
+    cursor = null;
+    loading = false;
+    hasMore = true;
+    if (grid) {
+      colCount = getColCount();
+      grid.innerHTML = "";
+      for (let i = 0; i < colCount; i++) {
+        const col = document.createElement("div");
+        col.className = "gallery-col";
+        grid.appendChild(col);
+      }
+      columnHeights = Array(colCount).fill(0);
+    }
+    if (loader) loader.querySelector("span").textContent = "Đang tải...";
+    loadMore();
+  });
+
+  if (loader) observer.observe(loader);
+
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(rebuildCols, 200);
+  });
+</script>
+
+<style is:global>
+  .gallery-page {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 4rem 0.75rem 2rem;
+  }
+
+  .gallery-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 0 1rem;
+  }
+
+  .gallery-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-default);
+    margin-bottom: 0.75rem;
+  }
+
+  .gallery-subtitle {
+    font-size: 1.1rem;
+    color: var(--grey-9);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .gallery-grid {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .gallery-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .gallery-item {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(
+      110deg,
+      var(--color-code-background) 30%,
+      rgba(128, 128, 128, 0.08) 50%,
+      var(--color-code-background) 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    box-shadow: var(--shadow-card);
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+    text-decoration: none;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  .gallery-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    color: var(--grey-9);
+    font-size: 0.95rem;
+  }
+
+  .pswp__bg {
+    background: #000;
+  }
+  .pswp__button--close {
+    color: var(--red-1) !important;
+  }
+  .pswp__counter {
+    color: var(--red-1) !important;
+    font-weight: 600 !important;
+  }
+  .pswp__button--arrow--prev,
+  .pswp__button--arrow--next {
+    color: var(--red-1) !important;
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .gallery-page {
+      padding: 2rem 1rem 1rem;
+    }
+    .gallery-title {
+      font-size: 2rem;
+    }
+  }
+</style>
