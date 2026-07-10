@@ -99,9 +99,13 @@ import AnimatedSection from "~/components/AnimatedSection.astro";
     }
 
     const cols = grid.children;
-    items.forEach((item, i) => {
-      cols[i % colCount].appendChild(item);
-    });
+    columnHeights = Array(colCount).fill(0);
+    for (const item of items) {
+      const ratio = parseFloat(item.dataset.ratio) || 1;
+      const shortest = columnHeights.indexOf(Math.min(...columnHeights));
+      cols[shortest].appendChild(item);
+      columnHeights[shortest] += ratio;
+    }
 
     initGallery();
   }
