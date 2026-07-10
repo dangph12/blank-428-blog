@@ -86,8 +86,6 @@ import AnimatedSection from "~/components/AnimatedSection.astro";
     const newCount = getColCount();
     if (newCount === colCount && grid.children.length > 0) return;
     colCount = newCount;
-    colIndex = 0;
-
     const items = [];
     for (const col of grid.children) {
       items.push(...col.querySelectorAll(".gallery-item"));
@@ -132,10 +130,16 @@ import AnimatedSection from "~/components/AnimatedSection.astro";
       imgEl.decoding = "async";
 
       a.appendChild(imgEl);
-      cols[colIndex % colCount].appendChild(a);
-      colIndex++;
+      const shortest = columnHeights.indexOf(Math.min(...columnHeights));
+      cols[shortest].appendChild(a);
+      columnHeights[shortest] += ratio;
 
-      loads.push(imgEl.decode().catch(() => {}));
+      loads.push(
+        imgEl
+          .decode()
+          .catch(() => {})
+          .then(() => new Promise((r) => requestAnimationFrame(r))),
+      );
     }
     initGallery();
     return Promise.all(loads);
