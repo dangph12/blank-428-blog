@@ -157,6 +157,7 @@ import AnimatedSection from "~/components/AnimatedSection.astro";
     try {
       const params = new URLSearchParams();
       if (cursor) params.set("cursor", cursor);
+      params.set("limit", "40");
       const res = await fetch(`/api/gallery.json?${params}`);
       const data = await res.json();
 
@@ -168,13 +169,6 @@ import AnimatedSection from "~/components/AnimatedSection.astro";
       }
 
       await appendImages(data.images);
-      if (pswpInstance) {
-        await new Promise((r) => requestAnimationFrame(r));
-        pswpInstance.options.dataSource = Array.from(
-          grid.querySelectorAll("a"),
-        );
-        pswpInstance.refresh();
-      }
       cursor = data.nextCursor;
       if (!cursor) hasMore = false;
     } catch (e) {
