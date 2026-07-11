@@ -77,7 +77,11 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
-.yarl__zoom_container[style*="scale("] {
+.yarl__slide_image {
+  cursor: zoom-in !important;
+}
+
+.yarl__zoomed .yarl__slide_image {
   cursor: zoom-out !important;
 }
 

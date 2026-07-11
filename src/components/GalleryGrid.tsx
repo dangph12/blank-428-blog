@@ -42,6 +42,7 @@ export default function GalleryGrid() {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
   );
+  const [isZoomed, setIsZoomed] = useState(false);
   const [colCount, setColCount] = useState(3);
 
   const cursorRef = useRef<string | null>(null);
@@ -51,6 +52,8 @@ export default function GalleryGrid() {
   const loadMoreRef = useRef<() => Promise<void>>(async () => {});
   const requestSeqRef = useRef(0);
   const zoomRef = useRef<ZoomRef>(null);
+  const dragHappenedRef = useRef(false);
+  const pointerPosRef = useRef({ x: 0, y: 0 });
 
   const columns = useMemo(
     () => computeColumns(images, colCount),
@@ -73,7 +76,7 @@ export default function GalleryGrid() {
     try {
       const params = new URLSearchParams();
       if (cursorRef.current) params.set('cursor', cursorRef.current);
-      params.set('limit', '40');
+      params.set('limit', '20');
 
       const res = await fetch(`/api/gallery.json?${params}`);
       if (!res.ok) {
@@ -170,6 +173,33 @@ export default function GalleryGrid() {
     return () => document.removeEventListener('astro:page-load', reset);
   }, []);
 
+  useEffect(() => {
+    if (selectedImageIndex === null) return;
+
+    let startX = 0;
+    let startY = 0;
+
+    const onPointerDown = (e: PointerEvent) => {
+      startX = e.clientX;
+      startY = e.clientY;
+      pointerPosRef.current = { x: e.clientX, y: e.clientY };
+      dragHappenedRef.current = false;
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!e.buttons) return;
+      const dx = Math.abs(e.clientX - startX);
+      const dy = Math.abs(e.clientY - startY);
+      if (dx > 5 || dy > 5) dragHappenedRef.current = true;
+    };
+
+    document.addEventListener('pointerdown', onPointerDown, { capture: true });
+    document.addEventListener('pointermove', onPointerMove, { capture: true });
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, { capture: true });
+      document.removeEventListener('pointermove', onPointerMove, { capture: true });
+    };
+  }, [selectedImageIndex]);
+
   return (
     <>
       <div className='gallery-grid' role='region' aria-label='Image gallery'>
@@ -223,6 +253,7 @@ export default function GalleryGrid() {
         open={selectedImageIndex !== null}
         close={closeImage}
         index={selectedImageIndex ?? 0}
+        className={isZoomed ? 'yarl__zoomed' : undefined}
         slides={images.map(img => ({
           src: img.src,
           alt: img.alt,
@@ -237,12 +268,29 @@ export default function GalleryGrid() {
         styles={{ container: { backgroundColor: 'rgba(0, 0, 0, 0.75)' } }}
         on={{
           click: () => {
+            if (dragHappenedRef.current) {
+              dragHappenedRef.current = false;
+              return;
+            }
             const z = zoomRef.current?.zoom ?? 1;
-            if (z <= 1) zoomRef.current?.zoomIn();
-            else zoomRef.current?.zoomOut();
+            if (z <= 1) {
+              const img = document.querySelector('.yarl__slide_image');
+              if (img) {
+                const r = img.getBoundingClientRect();
+                const px = pointerPosRef.current.x - r.left - r.width / 2;
+                const py = pointerPosRef.current.y - r.top - r.height / 2;
+                zoomRef.current?.changeZoom(4, false, px, py);
+              } else {
+                zoomRef.current?.zoomIn();
+              }
+            } else {
+              zoomRef.current?.changeZoom(1);
+            }
           },
+          zoom: ({ zoom }) => setIsZoomed(zoom > 1),
           view: ({ index }) => {
             setSelectedImageIndex(index);
+            setIsZoomed(false);
             const shouldPrefetch = hasMoreRef.current && !loadingRef.current && index >= imagesRef.current.length - 2;
             if (shouldPrefetch) loadMoreRef.current();
           },
