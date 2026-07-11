@@ -283,10 +283,10 @@ export default function GalleryGrid({
               height={28}
               alt=''
             />
-            Đang tải...
+            Đang leo dốc
           </span>
         ) : !hasMore ? (
-          <span>Đã tải hết</span>
+          <span>Mình đã trở thành nữ chính của riêng cậu chưa?</span>
         ) : null}
       </div>
 
