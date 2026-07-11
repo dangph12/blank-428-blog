@@ -1,5 +1,6 @@
 ---
 import { loadQuery } from "~/lib/load-query";
+import { CldImage } from 'astro-cloudinary';
 
 const postsQuery = `count(*[_type == "post" && defined(slug.current)])`;
 const categoriesQuery = `count(*[_type == "category" && defined(slug.current)])`;
@@ -12,8 +13,10 @@ const { data: categoryCount } = await loadQuery({ query: categoriesQuery });
   <div class="sidebar-wrapper">
     <div class="sidebar-wrap">
       <div class="sidebar-author">
-        <img
-          src="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801692/author-avatar_rmbwbr.jpg"
+        <CldImage
+          src="author-avatar_rmbwbr"
+          width={120}
+          height={120}
           alt="Author Avatar"
           class="author-avatar"
         />

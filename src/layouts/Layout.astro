@@ -5,6 +5,7 @@ import Loader from "~/components/Loader.astro";
 import PaceLoader from "~/components/PaceLoader.astro";
 import BackToTop from "~/components/BackToTop.astro";
 import ClickEffect from "~/components/ClickEffect.astro";
+import { CldOgImage } from 'astro-cloudinary';
 
 import "~/styles/variables.css";
 import "~/styles/animations.css";
@@ -29,17 +30,7 @@ const { title = "Blank.428 - Con dốc nhạt nhoà" } = Astro.props;
     <meta property="og:title" content={title} />
     <meta property="og:description" content="Blank.428 - Con dốc nhạt nhoà" />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:image"
-      content="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801937/og-image_immipa.jpg"
-    />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content="Blank.428 - Con dốc nhạt nhoà" />
-    <meta
-      name="twitter:image"
-      content="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801937/og-image_immipa.jpg"
-    />
+    <CldOgImage src="og-image_immipa" twitterTitle={title} alt={title} />
   </head>
   <body>
     <Loader />

@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
+import { getCldImageUrl } from 'astro-cloudinary/helpers';
 
 export interface ImgData {
   id: string;
@@ -10,15 +11,22 @@ export interface ImgData {
   alt: string;
 }
 
-export function buildImageData(resource: any, cloudBase: string): ImgData {
-  const t = (w: number) => `f_auto,q_auto,w_${w}`;
-  const url = (w: number) =>
-    `${cloudBase}/${t(w)}/${resource.public_id}.${resource.format}`;
+export function buildImageData(resource: any): ImgData {
+  const opts = (w: number) => ({
+    src: resource.public_id,
+    width: w,
+    format: 'auto' as const,
+    quality: 'auto' as const,
+  });
   return {
     id: resource.public_id,
-    src: url(1200),
-    thumb: url(400),
-    srcset: `${url(400)} 400w, ${url(800)} 800w, ${url(1200)} 1200w`,
+    src: getCldImageUrl({ ...opts(1200), crop: 'limit' }),
+    thumb: getCldImageUrl({ ...opts(400), crop: 'limit' }),
+    srcset: [
+      `${getCldImageUrl(opts(400))} 400w`,
+      `${getCldImageUrl(opts(800))} 800w`,
+      `${getCldImageUrl(opts(1200))} 1200w`,
+    ].join(', '),
     width: resource.width,
     height: resource.height,
     alt: resource.public_id.split('/').pop() || '',
@@ -46,8 +54,6 @@ export async function fetchGalleryImages(
     api_secret: API_SECRET,
   });
 
-  const CLOUD_BASE = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
-
   const result = await cloudinary.search
     .expression('folder:blank-428-blog/gallery')
     .sort_by('created_at', 'desc')
@@ -56,7 +62,7 @@ export async function fetchGalleryImages(
     .execute();
 
   return {
-    images: result.resources.map((r: any) => buildImageData(r, CLOUD_BASE)),
+    images: result.resources.map((r: any) => buildImageData(r)),
     nextCursor: result.next_cursor || null,
   };
 }

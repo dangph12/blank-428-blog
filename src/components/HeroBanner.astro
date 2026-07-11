@@ -1,4 +1,5 @@
 ---
+import { CldImage } from 'astro-cloudinary';
 interface Props {
   title?: string;
   subtitle?: string;
@@ -7,23 +8,22 @@ interface Props {
 const {
   title = "Blank.428",
   subtitle = "Con dốc nhạt nhoà",
-  image = "https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801461/banner_h5c3t3.jpg",
+  image = "banner_h5c3t3",
 } = Astro.props;
 ---
 
 <div id="hero-banner">
   <div class="banner-image-wrapper">
-    <picture>
-      <source
-        media="(max-width: 600px)"
-        srcset="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801459/banner-600w_doyor8.jpg"
-      />
-      <source
-        media="(max-width: 800px)"
-        srcset="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801459/banner-800w_wrd10u.jpg"
-      />
-      <img src={image} alt={title} class="banner-image" fetchpriority="high" />
-    </picture>
+    <CldImage
+      src={image}
+      width={1920}
+      height={1080}
+      alt={title}
+      class="banner-image"
+      sizes="100vw"
+      fetchpriority="high"
+      loading="eager"
+    />
   </div>
   <div class="banner-content">
     <h1 class="banner-title">{title}</h1>
