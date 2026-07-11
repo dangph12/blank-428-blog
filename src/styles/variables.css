@@ -1,12 +1,12 @@
 :root {
-  --red-1: #ff5252;
+  --red-1: #d94444;
   --red-2: #ff7c7c;
   --red-3: #ffafaf;
   --red-4: #ffd0d0;
   --red-5: #ffecec;
   --red-5-5: #fff3f3;
   --red-6: #fff7f7;
-  --grey-9: #888;
+  --grey-9: #5c5c5c;
   --color-default: #444;
   --color-border: var(--red-3);
   --color-link: var(--red-1);

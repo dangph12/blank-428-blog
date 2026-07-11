@@ -59,7 +59,11 @@
     width: 100%;
     height: 100%;
     z-index: 9999;
+    background: #f5f5f5;
     pointer-events: all;
+  }
+  [data-theme="dark"] #loader {
+    background: #1a1a1a;
   }
   .loading-bg {
     position: fixed;
@@ -102,7 +106,7 @@
     filter: drop-shadow(0 0 20px var(--red-1));
   }
   .bounce {
-    animation: bounce-up-down 1.5s ease-in-out infinite;
+    animation: float 3s cubic-bezier(0.45, 0, 0.35, 1) infinite;
   }
   .loading-word {
     position: absolute;
@@ -113,10 +117,10 @@
     font-weight: 700;
     font-size: 1.2rem;
     letter-spacing: 2px;
-    text-shadow: 0 0 10px var(--red-1);
+    text-shadow: 0 0 15px var(--red-1), 0 0 30px var(--red-1);
   }
   [data-theme="dark"] .loading-word {
-    text-shadow: 0 0 20px var(--red-1);
+    text-shadow: 0 0 25px var(--red-1), 0 0 50px var(--red-1);
   }
   #loader.loading {
     pointer-events: none;
@@ -131,13 +135,13 @@
     opacity: 0;
     visibility: hidden;
   }
-  @keyframes bounce-up-down {
+  @keyframes float {
     0%,
     100% {
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-50px);
+      transform: translateY(-20px);
     }
   }
 </style>

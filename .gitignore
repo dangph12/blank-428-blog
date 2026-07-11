@@ -26,4 +26,5 @@ pnpm-debug.log*
 # Local Netlify folder
 .netlify
 
+docs
 .superpowers
