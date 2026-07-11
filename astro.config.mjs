@@ -3,7 +3,7 @@ import sanity from '@sanity/astro';
 import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 
-process.loadEnvFile();
+try { process.loadEnvFile(); } catch {}
 
 const {
   PUBLIC_SANITY_STUDIO_URL,
