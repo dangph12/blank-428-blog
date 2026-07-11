@@ -1,4 +1,6 @@
 ---
+export const prerender = true;
+
 import Layout from "~/layouts/Layout.astro";
 import AnimatedSection from "~/components/AnimatedSection.astro";
 import GalleryGrid from "~/components/GalleryGrid.tsx";
@@ -16,9 +18,7 @@ const { images: initialImages, nextCursor: initialCursor } =
     <AnimatedSection animation="fade-up" duration={0.6}>
       <header class="gallery-header">
         <h1 class="gallery-title">Thư viện ảnh</h1>
-        <p class="gallery-subtitle">
-          Những khoảnh khắc đẹp trên con dốc nhạt nhoà
-        </p>
+        <p class="gallery-subtitle">Lên màu cho cô nàng nhạt nhoà</p>
       </header>
     </AnimatedSection>
 

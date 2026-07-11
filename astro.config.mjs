@@ -19,12 +19,12 @@ export default defineConfig({
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID,
       dataset: PUBLIC_SANITY_DATASET,
-      useCdn: false,
+      useCdn: true,
       apiVersion: '2025-12-28',
       studioUrl: PUBLIC_SANITY_STUDIO_URL,
-      stega: {
-        studioUrl: PUBLIC_SANITY_STUDIO_URL
-      }
+      ...(process.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true'
+        ? { stega: { studioUrl: PUBLIC_SANITY_STUDIO_URL } }
+        : {})
     })
   ],
   adapter: netlify(),

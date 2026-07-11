@@ -1,9 +1,17 @@
 ---
+import { sanityClient } from 'sanity:client';
 import { loadQuery } from "~/lib/load-query";
 import { preventOrphan, formatDate } from "~/lib/text-utils";
 import Layout from "~/layouts/Layout.astro";
 import PortableText from "~/components/PortableText.astro";
 import AnimatedSection from "~/components/AnimatedSection.astro";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const slugs = await sanityClient.fetch<string[]>(`*[_type == "post" && defined(slug.current)]{ "slug": slug.current }.slug`);
+  return slugs.map((slug) => ({ params: { slug } }));
+}
 
 const { params } = Astro;
 
