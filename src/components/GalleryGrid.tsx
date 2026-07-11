@@ -58,6 +58,7 @@ export default function GalleryGrid({
   const loadingRef = useRef(false);
   const hasMoreRef = useRef(true);
   const imagesRef = useRef(images);
+  const isHydratedRef = useRef(false);
   const loadMoreRef = useRef<() => Promise<void>>(async () => {});
   const requestSeqRef = useRef(0);
   const zoomRef = useRef<ZoomRef>(null);
@@ -163,6 +164,7 @@ export default function GalleryGrid({
 
   useEffect(() => {
     setColCount(getColCount());
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
@@ -191,6 +193,10 @@ export default function GalleryGrid({
 
   useEffect(() => {
     function reset() {
+      if (!isHydratedRef.current) {
+        isHydratedRef.current = true;
+        return;
+      }
       cursorRef.current = null;
       loadingRef.current = false;
       hasMoreRef.current = true;
