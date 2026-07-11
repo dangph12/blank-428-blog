@@ -85,6 +85,48 @@
   cursor: zoom-out !important;
 }
 
+.gallery-loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-beret {
+  display: block;
+}
+
+.bounce {
+  animation: bounce 0.6s ease-in-out infinite alternate;
+}
+
+.gallery-sentinel {
+  height: 1px;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-row {
+  animation: fadeInRow 0.5s ease-out both;
+}
+
 @keyframes shimmer {
   from {
     background-position: 200% 0;

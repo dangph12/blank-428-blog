@@ -34,8 +34,16 @@ function computeColumns(images: ImgData[], colCount: number): ImgData[][] {
   return cols;
 }
 
-export default function GalleryGrid() {
-  const [images, setImages] = useState<ImgData[]>([]);
+interface Props {
+  initialImages?: ImgData[];
+  initialCursor?: string | null;
+}
+
+export default function GalleryGrid({
+  initialImages = [],
+  initialCursor = null,
+}: Props) {
+  const [images, setImages] = useState<ImgData[]>(initialImages);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState('');
@@ -44,8 +52,9 @@ export default function GalleryGrid() {
   );
   const [isZoomed, setIsZoomed] = useState(false);
   const [colCount, setColCount] = useState(3);
+  const [fadeIds, setFadeIds] = useState<Set<string>>(new Set());
 
-  const cursorRef = useRef<string | null>(null);
+  const cursorRef = useRef<string | null>(initialCursor);
   const loadingRef = useRef(false);
   const hasMoreRef = useRef(true);
   const imagesRef = useRef(images);
@@ -122,6 +131,10 @@ export default function GalleryGrid() {
 
       if (requestId !== requestSeqRef.current) return;
 
+      const newIds = new Set(next.slice(0, colCount).map((img) => img.id));
+      setFadeIds(newIds);
+      setTimeout(() => setFadeIds(new Set()), 600);
+
       setImages(prev => [...prev, ...next]);
       cursorRef.current = data.nextCursor ?? null;
       if (!data.nextCursor) {
@@ -143,7 +156,13 @@ export default function GalleryGrid() {
   };
 
   useEffect(() => {
-    loadMoreRef.current();
+    if (initialImages.length === 0) loadMoreRef.current();
+  }, []);
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setColCount(getColCount());
   }, []);
 
   useEffect(() => {
@@ -154,6 +173,20 @@ export default function GalleryGrid() {
     }
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasMoreRef.current && !loadingRef.current)
+          loadMoreRef.current();
+      },
+      { rootMargin: '200px' }
+    );
+    obs.observe(sentinel);
+    return () => obs.disconnect();
   }, []);
 
   useEffect(() => {
@@ -216,6 +249,7 @@ export default function GalleryGrid() {
                 }}
               >
                 <img
+                  className={fadeIds.has(img.id) ? 'fade-in-row' : ''}
                   src={img.thumb}
                   srcSet={img.srcset}
                   sizes='(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
@@ -235,19 +269,22 @@ export default function GalleryGrid() {
         {error ? (
           <span>{error}</span>
         ) : loading ? (
-          <span>Đang tải...</span>
+          <span className='gallery-loading-indicator'>
+            <img
+              src='/images/beret.png'
+              className='loading-beret bounce'
+              width={28}
+              height={28}
+              alt=''
+            />
+            Đang tải...
+          </span>
         ) : !hasMore ? (
           <span>Đã tải hết</span>
-        ) : (
-          <button
-            type='button'
-            className='gallery-load-more'
-            onClick={() => loadMoreRef.current()}
-          >
-            Tải thêm ảnh
-          </button>
-        )}
+        ) : null}
       </div>
+
+      <div ref={sentinelRef} className='gallery-sentinel' />
 
       <Lightbox
         open={selectedImageIndex !== null}
