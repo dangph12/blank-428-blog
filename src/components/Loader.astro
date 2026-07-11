@@ -1,0 +1,143 @@
+---
+
+---
+
+<div id="loader">
+  <div class="loading-left-bg loading-bg"></div>
+  <div class="loading-right-bg loading-bg"></div>
+  <div class="spinner-box">
+    <div class="loading-beret bounce">
+      <img src="/images/beret.png" alt="loading" width="150" height="150" />
+    </div>
+    <div class="loading-word">Đang leo dốc</div>
+  </div>
+</div>
+
+<script>
+  let time = null;
+  const loaderEl = document.getElementById("loader");
+  const hideLoader = () => {
+    document.body.style.overflow = "auto";
+    loaderEl?.classList.add("loading");
+  };
+  const endLoading = () => {
+    if (!time) {
+      hideLoader();
+    } else {
+      const elapsed = Date.now() - time;
+      if (elapsed > 500) {
+        time = null;
+        hideLoader();
+      } else {
+        setTimeout(() => {
+          time = null;
+          hideLoader();
+        }, 500 - elapsed);
+      }
+    }
+  };
+  time = Date.now();
+  document.body.style.overflow = "hidden";
+  if (document.readyState === "complete") {
+    endLoading();
+  } else {
+    window.addEventListener("load", endLoading);
+  }
+  document.addEventListener("astro:before-preparation", () => {
+    time = Date.now();
+    loaderEl?.classList.remove("loading");
+    document.body.style.overflow = "hidden";
+  });
+  document.addEventListener("astro:page-load", endLoading);
+</script>
+
+<style>
+  #loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: all;
+  }
+  .loading-bg {
+    position: fixed;
+    z-index: 1000;
+    width: 50%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    transition: transform 0.8s ease;
+  }
+  [data-theme="dark"] .loading-bg {
+    background-color: rgba(37, 37, 37, 0.95);
+  }
+  .loading-left-bg {
+    left: 0;
+  }
+  .loading-right-bg {
+    right: 0;
+  }
+  .spinner-box {
+    position: fixed;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    opacity: 1;
+    transition:
+      opacity 0.5s ease,
+      visibility 0.5s ease;
+  }
+  .loading-beret {
+    opacity: 0.8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .loading-beret img {
+    filter: drop-shadow(0 0 20px var(--red-1));
+  }
+  .bounce {
+    animation: bounce-up-down 1.5s ease-in-out infinite;
+  }
+  .loading-word {
+    position: absolute;
+    color: var(--red-1);
+    top: calc(50% + 110px);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--red-1);
+  }
+  [data-theme="dark"] .loading-word {
+    text-shadow: 0 0 20px var(--red-1);
+  }
+  #loader.loading {
+    pointer-events: none;
+  }
+  #loader.loading .loading-left-bg {
+    transform: translateX(-100%);
+  }
+  #loader.loading .loading-right-bg {
+    transform: translateX(100%);
+  }
+  #loader.loading .spinner-box {
+    opacity: 0;
+    visibility: hidden;
+  }
+  @keyframes bounce-up-down {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-50px);
+    }
+  }
+</style>

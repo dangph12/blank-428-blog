@@ -1,0 +1,84 @@
+---
+import Header from "~/components/Header.astro";
+import Footer from "~/components/Footer.astro";
+import Loader from "~/components/Loader.astro";
+import PaceLoader from "~/components/PaceLoader.astro";
+import BackToTop from "~/components/BackToTop.astro";
+import ClickEffect from "~/components/ClickEffect.astro";
+
+import "~/styles/variables.css";
+import "~/styles/animations.css";
+import "~/styles/global.css";
+
+const { title = "Blank.428 - Con dốc nhạt nhoà" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content="Blank.428 - Con dốc nhạt nhoà" />
+    <meta name="keywords" content="Blank.428, Blog, Con dốc nhạt nhoà" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content="Blank.428 - Con dốc nhạt nhoà" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801937/og-image_immipa.jpg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content="Blank.428 - Con dốc nhạt nhoà" />
+    <meta
+      name="twitter:image"
+      content="https://res.cloudinary.com/dtd3kls2m/image/upload/v1767801937/og-image_immipa.jpg"
+    />
+  </head>
+  <body>
+    <Loader />
+    <PaceLoader />
+    <BackToTop />
+    <ClickEffect />
+
+    <div id="container">
+      <Header title="Blank.428" />
+
+      <main id="main">
+        <slot />
+      </main>
+
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+  #container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #main {
+    flex: 1;
+    padding-top: var(--header-height);
+    padding-bottom: 2rem;
+  }
+  @media (max-width: 768px) {
+    #main {
+      padding-top: 50px;
+    }
+  }
+</style>

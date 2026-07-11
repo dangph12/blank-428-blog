@@ -1,17 +1,187 @@
 ---
+import Layout from "~/layouts/Layout.astro";
+import Card from "~/components/Card.astro";
+import AnimatedSection from "~/components/AnimatedSection.astro";
+import HeroBanner from "~/components/HeroBanner.astro";
+import Sidebar from "~/components/Sidebar.astro";
+import Pagination from "~/components/Pagination.astro";
+import { loadQuery } from "~/lib/load-query";
+import { getPagination } from "~/lib/pagination";
+import type { SanityDocument } from "@sanity/client";
 
+const postsPerPage = 4;
+const pageParam = Astro.url.searchParams.get("page");
+const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
+
+const { data: totalCount } = await loadQuery<number>({
+  query: `count(*[_type == "post" && defined(slug.current)])`,
+});
+
+const pagination = getPagination(totalCount || 0, postsPerPage, currentPage);
+if (!pagination) {
+  return Astro.redirect("/");
+}
+
+const { validPage, offset, limit, totalPages } = pagination;
+
+const { data: currentPagePosts } = await loadQuery<SanityDocument[]>({
+  query: `*[_type == "post" && defined(slug.current)] | order(publishedAt desc) [${offset}..${limit}] {
+    _id,
+    title,
+    slug,
+    excerpt,
+    publishedAt,
+    "imageUrl": mainImage.asset->url
+  }`,
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Blank.428 - Con dốc nhạt nhoà">
+  <AnimatedSection animation="fade-in" duration={0.8}>
+    <HeroBanner title="Blank.428" subtitle="Con dốc nhạt nhoà" />
+  </AnimatedSection>
+  <div class="home-container">
+    <div class="content-layout">
+      <div class="main-content">
+        <section class="posts-section">
+          {
+            currentPagePosts && currentPagePosts.length > 0 ? (
+              <div class="posts-list">
+                {currentPagePosts.map((post, index) => (
+                  <AnimatedSection
+                    animation="fade-up"
+                    delay={0.1 * (index + 1)}
+                  >
+                    <Card
+                      title={post.title}
+                      excerpt={post.excerpt}
+                      date={post.publishedAt}
+                      href={`/posts/${post.slug.current}`}
+                      image={post.imageUrl}
+                    />
+                  </AnimatedSection>
+                ))}
+              </div>
+            ) : (
+              <AnimatedSection animation="fade-in" delay={0.3}>
+                <div class="no-posts">
+                  <p>No posts found for this page.</p>
+                </div>
+              </AnimatedSection>
+            )
+          }
+
+          {
+            totalPages && totalPages > 1 && (
+              <div class="pagination-container">
+                <AnimatedSection animation="fade-up" delay={0.5}>
+                  <Pagination
+                    currentPage={validPage}
+                    totalPages={totalPages}
+                    baseUrl="/"
+                  />
+                </AnimatedSection>
+              </div>
+            )
+          }
+        </section>
+      </div>
+
+      <div class="sidebar-wrapper">
+        <AnimatedSection animation="fade-in" delay={0.3}>
+          <Sidebar />
+        </AnimatedSection>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .home-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+    margin-top: -400px;
+    position: relative;
+    z-index: 10;
+  }
+  @media (max-width: 768px) {
+    .home-container {
+      margin-top: -450px;
+      padding: 0;
+    }
+  }
+  .content-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-top: 0;
+    position: relative;
+    z-index: 10;
+  }
+  @media (max-width: 1200px) {
+    .content-layout {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .sidebar-wrapper {
+      display: none;
+    }
+  }
+  @media (max-width: 768px) {
+    .content-layout {
+      gap: 1.5rem;
+      padding: 0 0.75rem;
+    }
+  }
+  .main-content {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+  @media (max-width: 1200px) {
+    .main-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+  }
+  .posts-section {
+    margin-bottom: 2rem;
+  }
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .no-posts {
+    text-align: center;
+    padding: 3rem;
+    background: var(--color-wrap);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+  }
+  .no-posts p {
+    color: var(--grey-9);
+    font-size: 1.1rem;
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .home-container {
+      padding: 0;
+    }
+    .content-layout {
+      gap: 1.5rem;
+      padding: 0 0.75rem;
+    }
+    .posts-list {
+      gap: 1.5rem;
+      padding: 0 0.75rem;
+    }
+  }
+</style>

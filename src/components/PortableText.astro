@@ -1,0 +1,25 @@
+---
+import { PortableText as PortableTextInternal } from "astro-portabletext";
+import PortableTextImage from "./PortableTextImage.astro";
+
+interface Props {
+  value?: any[];
+}
+const { value } = Astro.props as Props;
+const contentToRender = Array.isArray(value) && value.length > 0 ? value : [];
+
+const components = {
+  type: { image: PortableTextImage },
+};
+---
+
+<div class="portable-text-wrapper">
+  <PortableTextInternal value={contentToRender} components={components} />
+</div>
+
+<style>
+  .portable-text-wrapper {
+    display: block;
+    width: 100%;
+  }
+</style>

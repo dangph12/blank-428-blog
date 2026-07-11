@@ -1,0 +1,97 @@
+---
+interface Props {
+  animation?: "fade-up" | "fade-in" | "zoom-in" | "slide-left" | "slide-right";
+  delay?: number;
+  duration?: number;
+  once?: boolean;
+  className?: string;
+}
+const {
+  animation = "fade-up",
+  delay = 0,
+  duration = 0.6,
+  once = true,
+  className = "",
+} = Astro.props;
+---
+
+<div
+  class={`animated-section animate-${animation} ${className}`}
+  data-animation={animation}
+  data-once={once}
+  style={`--animation-delay: ${delay}s; --animation-duration: ${duration}s;`}
+>
+  <slot />
+</div>
+
+<style is:global>
+  .js-animations .animated-section:not(.in-view):not(.anim-skipped) {
+    opacity: 0;
+  }
+  .js-animations
+    .animated-section.animate-fade-up:not(.in-view):not(.anim-skipped) {
+    transform: translate3d(0, 30px, 0);
+  }
+  .js-animations
+    .animated-section.animate-zoom-in:not(.in-view):not(.anim-skipped) {
+    transform: scale(0.8);
+  }
+  .js-animations
+    .animated-section.animate-slide-left:not(.in-view):not(.anim-skipped) {
+    transform: translateX(-100px);
+  }
+  .js-animations
+    .animated-section.animate-slide-right:not(.in-view):not(.anim-skipped) {
+    transform: translateX(100px);
+  }
+  .js-animations .animated-section {
+    transition:
+      opacity var(--animation-duration, 0.6s) ease-out
+        var(--animation-delay, 0s),
+      transform var(--animation-duration, 0.6s) ease-out
+        var(--animation-delay, 0s);
+  }
+  .js-animations .animated-section.in-view,
+  .js-animations .animated-section.anim-skipped {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+
+<script>
+  function initAnimations() {
+    document.documentElement.classList.add("js-animations");
+    const sections = Array.from(document.querySelectorAll(".animated-section"));
+    const safetyTimer = setTimeout(() => {
+      sections.forEach((el) => {
+        if (!el.classList.contains("in-view")) {
+          el.classList.add("anim-skipped");
+        }
+      });
+    }, 1500);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in-view");
+            const once = entry.target.dataset.once !== "false";
+            if (once) observer.unobserve(entry.target);
+          }
+        });
+        const allRevealed = sections.every(
+          (el) =>
+            el.classList.contains("in-view") ||
+            el.classList.contains("anim-skipped"),
+        );
+        if (allRevealed) clearTimeout(safetyTimer);
+      },
+      { threshold: 0, rootMargin: "0px 0px 0px 0px" },
+    );
+    sections.forEach((el) => observer.observe(el));
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAnimations);
+  } else {
+    initAnimations();
+  }
+</script>

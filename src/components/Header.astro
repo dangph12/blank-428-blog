@@ -1,0 +1,311 @@
+---
+import { Moon, Sun, ChevronDown } from "@lucide/astro";
+import { loadQuery } from "~/lib/load-query";
+import type { SanityDocument } from "@sanity/client";
+
+const { title = "Blank.428" } = Astro.props;
+
+const { data: categories } = await loadQuery<SanityDocument[]>({
+  query: `*[_type == "category"] | order(title asc) { _id, title, "slug": slug.current }`,
+});
+---
+
+<header id="header-nav" class="site-header">
+  <div class="header-container">
+    <div class="header-content">
+      <a href="/" class="site-logo">
+        <span class="logo-text">{title}</span>
+      </a>
+      <nav class="main-nav">
+        <div class="nav-dropdown-wrapper">
+          <button
+            class="nav-link nav-dropdown-toggle"
+            aria-label="Categories menu"
+            aria-expanded="false"
+          >
+            <span>Bài viết</span><ChevronDown size={16} />
+          </button>
+          {
+            categories && categories.length > 0 && (
+              <div class="nav-dropdown-menu">
+                <a href="/posts" class="nav-dropdown-item">
+                  Tất cả
+                </a>
+                {categories.map((category) => (
+                  <a
+                    href={`/posts?category=${category.slug}`}
+                    class="nav-dropdown-item"
+                  >
+                    {category.title}
+                  </a>
+                ))}
+              </div>
+            )
+          }
+        </div>
+        <a href="/gallery" class="nav-link">Thư viện</a>
+        <a href="/about" class="nav-link">Giới thiệu</a>
+        <button
+          id="theme-toggle"
+          class="theme-toggle-btn"
+          aria-label="Toggle theme"
+        >
+          <span class="theme-icon" id="theme-icon-light"><Sun size={20} /></span
+          >
+          <span class="theme-icon hidden" id="theme-icon-dark"
+            ><Moon size={20} /></span
+          >
+        </button>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--color-header-background);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    opacity: 0.9;
+  }
+  .site-header.header-nav-hidden {
+    transform: translateY(-100%);
+  }
+  .header-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+  }
+  .site-logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--red-1);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s ease;
+  }
+  .site-logo:hover {
+    opacity: 0.8;
+  }
+  .logo-text {
+    background: linear-gradient(135deg, var(--red-1), var(--red-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .main-nav {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+  .nav-link {
+    color: var(--color-default);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--red-1);
+    transition: width 0.3s ease;
+  }
+  .nav-link:hover {
+    color: var(--red-1);
+  }
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  .nav-dropdown-wrapper {
+    position: relative;
+  }
+  .nav-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav-dropdown-toggle svg {
+    transition: transform 0.3s ease;
+  }
+  .nav-dropdown-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+  .nav-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    background: var(--color-wrap);
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .nav-dropdown-wrapper:hover .nav-dropdown-menu,
+  .nav-dropdown-wrapper.active .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .nav-dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--color-default);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  .nav-dropdown-item:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+  .nav-dropdown-item:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+  .nav-dropdown-item:hover {
+    background: var(--red-5);
+    color: var(--red-1);
+  }
+  .theme-toggle-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-background);
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: var(--cursor-pointer);
+    transition: all 0.3s ease;
+  }
+  .theme-toggle-btn:hover {
+    background: var(--red-1);
+    border-color: var(--red-1);
+    transform: rotate(180deg);
+  }
+  .theme-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    display: none;
+  }
+  .theme-icon:not(.hidden) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .theme-icon.hidden {
+    display: none !important;
+  }
+  @media (max-width: 768px) {
+    .header-content {
+      height: 50px;
+    }
+    .main-nav {
+      gap: 1rem;
+    }
+    .nav-link {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<script>
+  let lastScrollTop = 0;
+  const header = document.getElementById("header-nav");
+  window.addEventListener("scroll", () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop > lastScrollTop && scrollTop > 100) {
+      header?.classList.add("header-nav-hidden");
+    } else {
+      header?.classList.remove("header-nav-hidden");
+    }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+  });
+
+  function initDropdown() {
+    const dropdownWrapper = document.querySelector(".nav-dropdown-wrapper");
+    const toggleBtn = document.querySelector(".nav-dropdown-toggle");
+    if (!dropdownWrapper || !toggleBtn) return;
+    toggleBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isExpanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      toggleBtn.setAttribute("aria-expanded", (!isExpanded).toString());
+      dropdownWrapper.classList.toggle("active");
+    });
+    document.addEventListener("click", (e) => {
+      if (!dropdownWrapper.contains(e.target)) {
+        toggleBtn.setAttribute("aria-expanded", "false");
+        dropdownWrapper.classList.remove("active");
+      }
+    });
+    document.querySelectorAll(".nav-dropdown-item").forEach((item) => {
+      item.addEventListener("click", () => {
+        toggleBtn.setAttribute("aria-expanded", "false");
+        dropdownWrapper.classList.remove("active");
+      });
+    });
+  }
+
+  function initThemeToggle() {
+    const btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+    const showIcon = (theme) => {
+      const lightIcon = document.getElementById("theme-icon-light");
+      const darkIcon = document.getElementById("theme-icon-dark");
+      if (lightIcon) lightIcon.classList.add("hidden");
+      if (darkIcon) darkIcon.classList.add("hidden");
+      const targetIcon = document.getElementById(`theme-icon-${theme}`);
+      if (targetIcon) targetIcon.classList.remove("hidden");
+    };
+    const applyTheme = (newTheme) => {
+      const html = document.documentElement;
+      html.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      showIcon(newTheme);
+      btn.title = `Current: ${newTheme}`;
+    };
+    const savedTheme = localStorage.getItem("theme") || "light";
+    applyTheme(savedTheme);
+    btn.addEventListener("click", () => {
+      const currentTheme = localStorage.getItem("theme") || "light";
+      applyTheme(currentTheme === "light" ? "dark" : "light");
+    });
+  }
+
+  initDropdown();
+  initThemeToggle();
+</script>

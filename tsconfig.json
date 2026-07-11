@@ -1,5 +1,13 @@
 {
+  "compilerOptions": {
+    "types": ["@sanity/astro/module"],
+    "paths": {
+      "*": ["./*"],
+      "~/*": ["./src/*"]
+    },
+    "jsx": "react-jsx"
+  },
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
+  "include": [".astro/types.d.ts", "**/*", "../studio/lib/resolve.ts", "src"],
   "exclude": ["dist"]
 }

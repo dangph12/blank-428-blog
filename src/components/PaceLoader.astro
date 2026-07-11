@@ -1,0 +1,52 @@
+---
+
+---
+
+<div id="pace-loader" aria-hidden="true"></div>
+
+<style is:global>
+  #pace-loader {
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red-1), var(--red-2));
+    box-shadow:
+      0 0 10px var(--red-1),
+      0 0 5px var(--red-1);
+    pointer-events: none;
+    transition:
+      width 0.3s ease,
+      opacity 0.4s ease;
+    opacity: 0;
+  }
+  #pace-loader.loading {
+    opacity: 1;
+    width: 80%;
+    transition: width 8s cubic-bezier(0.1, 0.05, 0, 1);
+  }
+  #pace-loader.done {
+    width: 100% !important;
+    opacity: 0;
+    transition:
+      width 0.1s ease,
+      opacity 0.4s ease 0.1s;
+  }
+</style>
+
+<script>
+  const bar = document.getElementById("pace-loader");
+  if (bar) {
+    bar.classList.add("loading");
+    window.addEventListener(
+      "load",
+      () => {
+        bar.classList.remove("loading");
+        bar.classList.add("done");
+      },
+      { once: true },
+    );
+  }
+</script>
