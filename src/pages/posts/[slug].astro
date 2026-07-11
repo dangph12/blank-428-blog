@@ -39,6 +39,7 @@ const { data: post } = await loadQuery<{
 const processedPost = post
   ? {
       ...post,
+      title: preventOrphan(post.title),
       body: post.body || [],
       excerpt: post.excerpt ? preventOrphan(post.excerpt) : post.excerpt,
     }
