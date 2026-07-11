@@ -2,6 +2,13 @@
 import Layout from "~/layouts/Layout.astro";
 import AnimatedSection from "~/components/AnimatedSection.astro";
 import GalleryGrid from "~/components/GalleryGrid.tsx";
+import { fetchGalleryImages } from "~/lib/cloudinary";
+
+const { images: initialImages, nextCursor: initialCursor } =
+  await fetchGalleryImages(10).catch(() => ({
+    images: [],
+    nextCursor: null,
+  }));
 ---
 
 <Layout title="Thư viện ảnh - Blank.428">
@@ -16,7 +23,11 @@ import GalleryGrid from "~/components/GalleryGrid.tsx";
     </AnimatedSection>
 
     <AnimatedSection animation="fade-in" delay={0.3}>
-      <GalleryGrid client:load />
+      <GalleryGrid
+        client:load
+        initialImages={initialImages}
+        initialCursor={initialCursor}
+      />
     </AnimatedSection>
   </div>
 </Layout>
