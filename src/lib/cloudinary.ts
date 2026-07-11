@@ -1,3 +1,5 @@
+import { v2 as cloudinary } from 'cloudinary';
+
 export interface ImgData {
   id: string;
   src: string;
@@ -38,7 +40,6 @@ export async function fetchGalleryImages(
     return { images: [], nextCursor: null };
   }
 
-  const { v2 as cloudinary } = await import('cloudinary');
   cloudinary.config({
     cloud_name: CLOUD_NAME,
     api_key: API_KEY,
