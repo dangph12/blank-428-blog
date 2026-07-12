@@ -47,6 +47,11 @@ import AboutSection from "~/components/AboutSection.astro";
       padding: 0;
     }
   }
+  @media (min-height: 1080px) {
+    .about-container {
+      margin-top: calc(-100vh + 680px);
+    }
+  }
   .content-layout {
     display: flex;
     gap: 2rem;

@@ -1,5 +1,5 @@
 ---
-import { Moon, Sun, ChevronDown } from "@lucide/astro";
+import { Moon, Sun, ChevronDown, Menu, X } from "@lucide/astro";
 import { loadQuery } from "~/lib/load-query";
 import type { SanityDocument } from "@sanity/client";
 
@@ -16,7 +16,7 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
       <a href="/" class="site-logo">
         <span class="logo-text">{title}</span>
       </a>
-      <nav class="main-nav">
+      <nav class="main-nav desktop-nav">
         <div class="nav-dropdown-wrapper">
           <button
             class="nav-link nav-dropdown-toggle"
@@ -45,6 +45,9 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
         </div>
         <a href="/gallery" class="nav-link">Thư viện</a>
         <a href="/about" class="nav-link">Giới thiệu</a>
+      </nav>
+
+      <div class="header-actions">
         <button
           id="theme-toggle"
           class="theme-toggle-btn"
@@ -56,10 +59,61 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
             ><Moon size={20} /></span
           >
         </button>
-      </nav>
+        <button
+          id="hamburger-btn"
+          class="hamburger-btn"
+          aria-label="Open menu"
+          aria-expanded="false"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
     </div>
   </div>
 </header>
+
+<!-- MOVED OUTSIDE OF THE HEADER -->
+<div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+  <div class="drawer-backdrop"></div>
+  <div class="drawer-panel">
+    <div class="drawer-header">
+      <span class="drawer-title">Menu</span>
+      <button
+        id="drawer-close"
+        class="drawer-close-btn"
+        aria-label="Close menu"
+      >
+        <X size={24} />
+      </button>
+    </div>
+    <nav class="drawer-nav">
+      <div class="drawer-dropdown-wrapper">
+        <button class="drawer-dropdown-toggle" aria-expanded="false">
+          <span>Bài viết</span><ChevronDown size={16} />
+        </button>
+        {
+          categories && categories.length > 0 && (
+            <div class="drawer-dropdown-menu">
+              <a href="/posts" class="drawer-dropdown-item">
+                Tất cả
+              </a>
+              {categories.map((category) => (
+                <a
+                  href={`/posts?category=${category.slug}`}
+                  class="drawer-dropdown-item"
+                >
+                  {category.title}
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
+      <a href="/gallery" class="drawer-nav-link">Thư viện</a>
+      <a href="/about" class="drawer-nav-link">Giới thiệu</a>
+    </nav>
+  </div>
+</div>
 
 <style>
   .site-header {
@@ -104,6 +158,8 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
   .logo-text {
     color: var(--red-1);
   }
+
+  /* --- Desktop nav --- */
   .main-nav {
     display: flex;
     gap: 2rem;
@@ -198,6 +254,13 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
     background: var(--red-5);
     color: var(--red-1);
   }
+
+  /* --- Header actions (theme toggle + hamburger) --- */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
   .theme-toggle-btn {
     width: 2.5rem;
     height: 2.5rem;
@@ -228,6 +291,164 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
   .theme-icon.hidden {
     display: none !important;
   }
+  .hamburger-btn {
+    display: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-background);
+    border: 2px solid var(--color-border);
+    align-items: center;
+    justify-content: center;
+    cursor: var(--cursor-pointer);
+    transition: all 0.3s ease;
+    color: var(--color-default);
+  }
+  .hamburger-btn:hover {
+    background: var(--red-1);
+    border-color: var(--red-1);
+    color: #fff;
+  }
+
+  /* --- Mobile drawer --- */
+  .mobile-drawer {
+    display: none;
+    position: relative;
+    z-index: 60; /* Added z-index wrapper */
+  }
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    z-index: 55; /* Fixed overlay layer */
+    transition: opacity 0.3s ease;
+  }
+  .drawer-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 80vw;
+    background: var(--color-wrap);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 60;
+  }
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .drawer-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-default);
+  }
+  .drawer-close-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-background);
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: var(--cursor-pointer);
+    color: var(--color-default);
+    transition: all 0.3s ease;
+  }
+  .drawer-close-btn:hover {
+    background: var(--red-1);
+    border-color: var(--red-1);
+    color: #fff;
+  }
+  .drawer-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    flex: 1;
+    overflow-y: auto;
+  }
+  .drawer-nav-link {
+    display: block;
+    padding: 0.85rem 1.25rem;
+    color: var(--color-default);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: background 0.2s ease;
+  }
+  .drawer-nav-link:hover {
+    background: var(--red-5);
+    color: var(--red-1);
+  }
+  .drawer-dropdown-wrapper {
+    border-bottom: none;
+  }
+  .drawer-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    background: none;
+    border: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--color-default);
+    cursor: var(--cursor-pointer);
+    transition: background 0.2s ease;
+  }
+  .drawer-dropdown-toggle:hover {
+    background: var(--red-5);
+    color: var(--red-1);
+  }
+  .drawer-dropdown-toggle svg {
+    transition: transform 0.3s ease;
+  }
+  .drawer-dropdown-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+  .drawer-dropdown-menu {
+    display: none;
+    background: var(--color-background);
+  }
+  .drawer-dropdown-toggle[aria-expanded="true"] + .drawer-dropdown-menu {
+    display: block;
+  }
+  .drawer-dropdown-item {
+    display: block;
+    padding: 0.65rem 1.25rem 0.65rem 2rem;
+    color: var(--color-default);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+  }
+  .drawer-dropdown-item:hover {
+    background: var(--red-5);
+    color: var(--red-1);
+  }
+
+  /* Drawer open state */
+  .mobile-drawer.open {
+    display: block;
+  }
+  .mobile-drawer.open .drawer-backdrop {
+    opacity: 1;
+  }
+  .mobile-drawer.open .drawer-panel {
+    transform: translateX(0);
+  }
+
+  /* --- Responsive --- */
   @media (max-width: 768px) {
     .header-content {
       height: 50px;
@@ -237,6 +458,18 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
     }
     .nav-link {
       font-size: 0.9rem;
+    }
+    .desktop-nav {
+      display: none;
+    }
+    .hamburger-btn {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-drawer {
+      display: none !important;
     }
   }
 </style>
@@ -304,6 +537,54 @@ const { data: categories } = await loadQuery<SanityDocument[]>({
     });
   }
 
+  function initDrawer() {
+    const hamburger = document.getElementById("hamburger-btn");
+    const drawer = document.getElementById("mobile-drawer");
+    const closeBtn = document.getElementById("drawer-close");
+    const backdrop = drawer?.querySelector(".drawer-backdrop");
+    if (!hamburger || !drawer || !closeBtn) return;
+
+    function openDrawer() {
+      drawer.classList.add("open");
+      drawer.setAttribute("aria-hidden", "false");
+      hamburger.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+      hamburger.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    }
+
+    hamburger.addEventListener("click", openDrawer);
+    closeBtn.addEventListener("click", closeDrawer);
+    backdrop?.addEventListener("click", closeDrawer);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawer.classList.contains("open")) {
+        closeDrawer();
+      }
+    });
+    drawer
+      .querySelectorAll(".drawer-nav-link, .drawer-dropdown-item")
+      .forEach((link) => {
+        link.addEventListener("click", closeDrawer);
+      });
+
+    // Drawer dropdown accordion
+    const drawerDropdownToggles = drawer.querySelectorAll(
+      ".drawer-dropdown-toggle",
+    );
+    drawerDropdownToggles.forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+        toggle.setAttribute("aria-expanded", (!isExpanded).toString());
+      });
+    });
+  }
+
   initDropdown();
   initThemeToggle();
+  initDrawer();
 </script>

@@ -111,6 +111,11 @@ const { data: currentPagePosts } = await loadQuery<SanityDocument[]>({
       padding: 0;
     }
   }
+  @media (min-height: 1080px) {
+    .home-container {
+      margin-top: calc(-100vh + 680px);
+    }
+  }
   .content-layout {
     display: flex;
     gap: 2rem;
