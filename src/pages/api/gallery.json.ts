@@ -1,3 +1,4 @@
+// Dev fallback — unused in production (edge function handles this path)
 import type { APIRoute } from 'astro';
 import { fetchGalleryImages } from '~/lib/cloudinary';
 
