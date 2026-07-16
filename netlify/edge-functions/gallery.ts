@@ -86,7 +86,12 @@ export default async (request: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({ images, nextCursor: data.next_cursor || null }),
-      { headers: { 'Content-Type': 'application/json' } }
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=86400',
+        },
+      }
     );
   } catch (e: any) {
     return err(e.message || 'Failed to fetch gallery');
